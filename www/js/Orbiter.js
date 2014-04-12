@@ -482,6 +482,15 @@ $(function() {
 			// 	}
 				
 			// }
+			if(selectedSatellite) {
+				var satellite = selectedSatellite;
+				context.camera.position.x = satellite.dot.position.x;
+				context.camera.position.y = satellite.dot.position.y;
+				context.camera.position.z = satellite.dot.position.z;
+
+				var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
+				// context.camera.lookAt(vectorPointingAtEarth);
+			}
 			
 			
 			return false;	
