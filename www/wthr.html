@@ -1,0 +1,971 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Satellites</title>
+		<meta charset="utf-8">
+		
+		
+		<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+		
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+		<meta name="description" content="Satellite Viewer is a realtime simulation of all tracked artificial satellites currently in Earth orbit."/>
+		<meta property="og:description" content="Satellite Viewer is a realtime simulation of all tracked artificial satellites currently in Earth orbit." />
+		
+		<link rel="image_src" type="image/png" href="/SatellitesSnapshot0.png" />
+		<meta property="og:image" content="/SatellitesSnapshot0.png" />
+		
+		
+		<link href='http://fonts.googleapis.com/css?family=Average+Sans|Rationale' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="lib/jquery/css/custom-theme/jquery-ui-1.10.2.custom.min.css">
+		<link rel="stylesheet" href="planet.css">
+		
+		<script src="lib/three.min.js"></script>
+		<script src="lib/moment.min.js"></script>
+		<script src="lib/Detector.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/json.js"></script>
+		<script src="lib/modernizr.js"></script>
+		<script src="/lib/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+
+		<script src="lib/jquery/js/jquery-1.9.1.min.js"></script>
+		<script src="lib/jquery/js/jquery-ui-1.10.2.custom.min.js"></script>
+		<script src="lib/jquery/plugins/jquery.colorpicker.js"></script>
+		<link href="lib/jquery/plugins/jquery.colorpicker.css" rel="stylesheet" type="text/css"/>
+		
+		<script src="lib/jquery/plugins/swatches/jquery.ui.colorpicker-pantone.js"></script>
+		<script src="lib/jquery/plugins/parts/jquery.ui.colorpicker-rgbslider.js"></script>
+		<script src="lib/jquery/plugins/parts/jquery.ui.colorpicker-memory.js"></script>
+		
+		<script src="lib/THREEx.screenshot.js"></script>
+		<script src="lib/THREEx.FullScreen.js"></script>
+		<script src="lib/THREEx.WindowResize.js"></script>
+		
+		<script src="postprocessing.js"></script>
+		<script src="shaders.js"></script>
+		<script src="planetmaker.js"></script>
+		<style>
+#loading-screen {
+	background: #000000;
+	text-align: center;
+}
+
+#loading-content {
+	margin: auto;
+	
+}
+
+#loading-label {
+	font-size: 1.5em;
+	font-weight: bold;
+	font-style: italic;
+	font-family: 'Average Sans', sans-serif;
+}
+
+#loading-status {
+	font-size: 2.0em;
+	font-weight: bold;
+	font-family: 'Average Sans', sans-serif;
+}
+
+
+#loading-screen-graphic {
+	vertical-align: middle;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#date-container {
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	color: #FFFFFF;
+	width: 250px;
+	font-size: 1.6em;
+}
+
+
+		</style>
+	<script>
+	
+	
+var tickController = null;
+var engine = null;
+var timer = null;
+var earth = null;
+var earthOrbit = null;
+var satelliteMap = {};
+var axisLines = null;
+
+var mouse = new THREE.Vector2(), INTERSECTED;
+
+
+var appOptions = {
+	guiOpacity : 0.9
+};
+
+var modelOptions = {
+	pathsVisible : true,
+	
+	timeWarp : 25000
+};
+
+var categories = [
+	{ category : "STATIONS", description : "Space Stations", enabled : true },
+	{ category : "SCIENCE", description : "Science", enabled : false },
+	{ category : "VISUAL", description : "Potentially Visible", enabled : true },
+	{ category : "AMATEUR", description : "Amateur Radio", enabled : false },
+	{ category : "GEO", description : "Geostationary", enabled : false },
+	{ category : "GPS", description : "GPS", enabled : false },
+	{ category : "TLE-NEW", description : "Recent Launches", enabled : false },
+	{ category : "BEIDOU", description : "Beidou", enabled : false },
+	{ category : "CUBESAT", description : "CubeSats", enabled : false },
+	{ category : "DMC", description : "Disaster Monitoring", enabled : false },
+	{ category : "EDUCATION", description : "Education", enabled : false },
+	{ category : "ENGINEERING", description : "Engineering", enabled : false },
+	{ category : "GALILEO", description : "Galileo", enabled : false },
+	{ category : "GEODETIC", description : "Geodetic", enabled : false },
+	{ category : "GLO-OPS", description : "Glonass Operational", enabled : false },
+	{ category : "GLOBALSTAR", description : "Globalstar", enabled : false },
+	{ category : "GOES", description : "GOES", enabled : false },
+	{ category : "GORIZONT", description : "Gorizont", enabled : false },
+	{ category : "GPS-OPS", description : "GPS Operational", enabled : false },
+	{ category : "INTELSAT", description : "Intelsat", enabled : false },
+	{ category : "IRIDIUM", description : "Iridium", enabled : false },
+	{ category : "MILITARY", description : "Misc. Military", enabled : false },
+	{ category : "MOLNIYA", description : "Molniya", enabled : false },
+	{ category : "MUSSON", description : "Russian LEO Nav", enabled : false },
+	{ category : "NNSS", description : "Navy Nav System", enabled : false },
+	{ category : "NOAA", description : "NOAA", enabled : false },
+	{ category : "ORBCOMM", description : "Orbcomm", enabled : false },
+	{ category : "OTHER", description : "Other", enabled : false },
+	{ category : "OTHER-COMM", description : "Other Comm.", enabled : false },
+	{ category : "RADAR", description : "Radar Calibration", enabled : false },
+	{ category : "RADUGA", description : "Raduga", enabled : false },
+	{ category : "RESOURCE", description : "Earth Resources", enabled : false },
+	{ category : "SARSAT", description : "Search & Rescue", enabled : false },
+	{ category : "SBAS", description : "Sat-Based Aug.", enabled : false },
+	{ category : "TDRSS", description : "Tracking & Data Relay", enabled : false },
+	{ category : "WEATHER", description : "Weather", enabled : false },
+	{ category : "X-COMM", description : "Experimental Comm.", enabled : false }/*,
+	{ category : "1999-025", description : "FENGYUN 1C Debris", enabled : false },
+	{ category : "IRIDIUM-33-DEBRIS", description : "Iridium 33 Debris", enabled : false },
+	{ category : "COSMOS-2251-DEBRIS", description : "Cosmos 2251 Debris", enabled : false },
+	{ category : "2012-044", description : "BREEZE-M R/B Breakup", enabled : false }*/
+	//{ category : "", description : "", enabled : false },
+];
+
+var categoryOptions = {
+
+};
+	
+function setLoadingStatus(status)
+{
+	$( "#loading-status" ).html(status);
+}
+
+function displayErrorMessage(title, body)
+{
+	console.error("Error: " + title + ": " + body);
+	
+	$( "#error-message-dialog" ).attr("title", title);
+	$( "#error-message-title" ).text(title);
+	$( "#error-message-body" ).text(body);
+	
+	$( "#error-message-dialog" ).dialog( "open" );
+	
+}	
+
+function isUserMobile()
+{
+	return /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
+}
+			
+
+
+jQuery.fn.center = function () {
+    this.css("position","absolute");
+    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
+                                                $(window).scrollTop()) + "px");
+    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) + 
+                                                $(window).scrollLeft()) + "px");
+    return this;
+}
+
+function rgbToHex(r, g, b) {
+	return (new THREE.Color()).setRGB(r, g, b).getHex();
+}
+
+function getOrbitColor(f)
+{
+	var r = (1 * f) + (0 * (1 - f));
+	var g = (0 * f) + (1 * (1 - f));
+	var b = 0;
+	return rgbToHex(r, g, b);
+}
+
+
+function addToPrimaryScene(obj) {
+	engine.context.objects.push(obj);
+	engine.context.primaryScene.add(obj);
+}
+
+function satelliteHasCategory(satellite, category) {
+	for (var i = 0; i < satellite.categories.length; i++) {
+		if (satellite.categories[i] == category) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function getOrbitOpacity(satellite) {
+	if (satelliteHasCategory(satellite, "STATIONS")) {
+		return 1.0;
+	}
+	
+	return 0.25;
+}
+
+function getOrbitColor(satellite) {
+
+	if (satellite.orbit.isDebris == "yes") {
+		return 0xFF0000;
+	} else if (satelliteHasCategory(satellite, "GEO")) {
+		return 0x00FF00;
+	} else if (satelliteHasCategory(satellite, "MILITARY")) {
+		return 0xFFFF00;
+	} else if (satelliteHasCategory(satellite, "STATIONS")) {
+		return 0xFFFFFF;
+	}
+
+	return 0xFFFFFF;
+}
+
+function createOrbitor(context, satellite, tickController) {
+
+	
+	satellite.orbit.scale = 1.0;
+	satellite.orbit.opacity = getOrbitOpacity(satellite);
+	satellite.orbit.semiMajorAxis = satellite.orbit.semiMajorAxis / 6371 * 200;
+	satellite.orbit.color = getOrbitColor(satellite);
+	
+	var texture = (satellite.orbit.name == "ISS (ZARYA)") ? "/img/sprites/iss_100x100.png" : "/img/sprites/satellite_100x100.png";
+	var size = (satellite.orbit.name == "ISS (ZARYA)") ? 25 : 15;
+	satellite.dot = new KMG.DotPlotObject(context, {color:0xFF0000, size: size, texture: texture });
+	satellite.dot.position.set(-200, 0, 0);
+	addToPrimaryScene(satellite.dot);
+	
+	var orbit = new KMG.EllipticalOrbit(satellite.orbit);
+	
+	satellite.path = new KMG.OrbitPathLine(context, satellite.orbit, orbit);
+
+	
+	addToPrimaryScene(satellite.path);
+	
+	satellite.orbiter =  new KMG.EllipticalOrbiter(context, satellite.dot, 1.0, 0.1 / 365.25, orbit, null, tickController, true);
+	
+}
+
+
+function isSatelliteVisible(satellite) {
+	
+	for (var i = 0; i < satellite.categories.length; i++) {
+		var category = satellite.categories[i];
+		if (categoryOptions[category]) {
+			return true;
+		}
+	}
+	return false;
+};
+
+function setCategoryVisibility(property, visible) {
+	
+	for (key in satelliteMap) {
+		var satellite = satelliteMap[key];
+		
+		if (satelliteHasCategory(satellite, property)) {
+			satellite.dot.setVisibility(isSatelliteVisible(satellite));
+			satellite.path.setVisibility(isSatelliteVisible(satellite));
+		}
+		
+	}
+
+}
+
+function setPathVisibility(visible) {
+	for (key in satelliteMap) {
+		var satellite = satelliteMap[key];
+			
+		satellite.path.setVisibility(isSatelliteVisible(satellite) && visible);
+		
+	}
+}
+
+
+$(function() {
+
+	$("body").on({
+		mousemove : function(event) {
+			event.preventDefault();
+			mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+		}
+	});
+	
+	setLoadingStatus("Setting up viewport&hellip;");
+
+	
+	var visibleAboutDialogSection = function() {
+		if ($( "#about-dialog-about" ).css("display") === "block") {
+			return $( "#about-dialog-about" );
+		} else if ($( "#about-dialog-instructions" ).css("display") === "block") {
+			return $( "#about-dialog-instructions" );
+		} else if ($( "#about-dialog-changes" ).css("display") === "block") {
+			return $( "#about-dialog-changes" );
+		} else {
+			return null;
+		}
+	};
+	
+	var onAboutDialogSection = function(section) {
+	
+		var visibleSection = visibleAboutDialogSection();
+		if (visibleSection !== null) {
+			var options = {};
+			visibleSection.hide( "fade", 200, function() {
+				$( "#about-dialog-"+section ).removeAttr( "style" ).hide().fadeIn(200);
+			});
+		} else {
+			$( "#about-dialog-"+section ).removeAttr( "style" ).hide().fadeIn(200);
+		}
+	};
+	
+	$( "#about-dialog-radios" ).buttonset();
+	$( "#radio_about" ).change(function(e) {
+		onAboutDialogSection("about");
+	});
+	$( "#radio_instructions" ).change(function(e) {
+		onAboutDialogSection("instructions");
+	});
+	$( "#radio_changes" ).change(function(e) {
+		onAboutDialogSection("changes");
+	});
+	$( "#about-dialog-about" ).css("display", "none");
+	$( "#about-dialog-instructions" ).css("display", "none");
+	$( "#about-dialog-changes" ).css("display", "none");
+	onAboutDialogSection("about");
+	$("input:radio[name='about_dialog_radio'][value='about']").prop("checked", true);
+	
+	
+	
+	$( "#dialog" ).dialog({
+		width: 600,
+		autoOpen: false,
+		show: {
+			effect: "drop",
+			duration: 400
+		},
+		hide: {
+			effect: "drop",
+			duration: 400
+		}
+	});
+	$( "#about-link" ).click(function() {
+		
+		$( "#dialog" ).dialog( "open" );
+
+	});
+	
+	
+	$( "#error-message-dialog" ).dialog({
+		width: 600,
+		autoOpen: false,
+		modal: true,
+		show: {
+			effect: "drop",
+			duration: 400
+		},
+		hide: {
+			effect: "drop",
+			duration: 400
+		},
+		buttons: {
+			Ok : function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
+
+	if (!window.WebGLRenderingContext || !Detector.webgl) {
+		Detector.addGetWebGLMessage();
+	}
+	
+	setLoadingStatus("Loading Earth...");
+	
+	var tex = {
+		name : "earth",
+		texture : "/img/planets_small/earth.jpg",
+		bumpMap : "",
+		normalMap : "/img/flat_normalmap_128x64.jpg",
+		specularMap : "/img/earth_specularmap_flat_1024x512.jpg",
+		enabled : true
+	};
+	KMG.textures.push(tex);
+	
+	var config = KMG.Util.extend({}, KMG.DefaultConfig);
+	config.initWithShadows = false;
+	
+	//config.backgroundType = "image";
+	//config.backgroundImage = "Yale Bright Star Map";
+	//config.backgroundImageType = "sphere";
+	config.textureResolution = "1024x512";
+	config.noPlanet = true;
+	//config.noStars = true;
+	config.displayLocalStar = false;
+	config.lensFlareEnabled = false;
+	config.enableFps = false;
+	config.sunlightDirection = 180;
+	config.starQuantity = 9.5;
+	
+	var sceneReadyCallback = function() {
+		
+	};
+	var contextLostCallback = function(event) {
+		console.error("UI: WebGL Context Lost, displaying notification");
+		displayErrorMessage("WebGL Error", "WebGL Context Lost! Please refresh to restart the application");
+	};
+	var sceneCallbacks = {
+		sceneReadyCallback : sceneReadyCallback,
+		contextLostCallback : contextLostCallback
+	};
+	
+	var filterTo = AppEnv.getUrlVar("sat");
+	if (filterTo) {
+		for (var i = 0; i < categories.length; i++) {
+			categories[i].enabled = true;
+		}
+	
+	}
+	
+	
+	engine = new KMG.Planet(document.getElementById( 'container' ), config, sceneCallbacks);
+	var context = engine.context;
+		
+	
+	earthOrbit = new KMG.EllipticalOrbit(KMG.OrbitDefinitions.earth);
+	var earthConfig = KMG.Util.extend({radius:200, fog:false, scale:1.0, texture:"earth", material:KMG.MaterialPhong}, KMG.DefaultTexturedSphereOptions);
+	earth = new KMG.TexturedSphereObject(context, earthConfig);
+	addToPrimaryScene(earth);
+	
+	//axisLines = new KMG.LibrationAxisLines(context, {});
+	//addToPrimaryScene(axisLines);
+
+	tickController = new KMG.TimeBasedTickController(modelOptions.timeWarp);
+	tickController.resetToToday();
+	context.objects.push(tickController);
+
+	setLoadingStatus("Loading Satellite Database...");
+	
+	
+	var sceneScript = new function() {
+		var scope = this;
+		var planet, config, context;
+		
+		var isVisible = false;
+		
+		var projector = new THREE.Projector();
+		var mouseOverRadius = 0.033;
+		
+		this.onScriptInitialize = function(_planet, _config, _context) {
+			planet = _planet;
+			config = _config;
+			context = _context;
+			
+		};
+		
+		
+		
+		
+		this.onFrameHandler = function(planet, config, context) {
+
+			tickController.speed = 1 + (1000 * modelOptions.tickDelayGui);
+
+			$("#date-container").text(moment(tickController.tickDate).format("LLL"));
+			
+			var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+			for(var key in satelliteMap) {
+				var satellite = satelliteMap[key];
+				
+				var pos = satellite.dot.position.clone();
+				projector.projectVector( pos, context.camera );
+				
+				if (vector.distanceTo(pos) <= mouseOverRadius && satellite.dot.visible) {
+					if (!satellite.nameSprite) {
+						satellite.nameSprite = new KMG.BillBoardTextObject(context, satellite.name, {});
+						context.primaryScene.add(satellite.nameSprite);
+					}
+
+					satellite.nameSprite.position = satellite.dot.position;
+				
+				} else if (satellite.nameSprite) {
+					context.primaryScene.remove(satellite.nameSprite);
+					satellite.nameSprite = null;
+				
+				}
+				
+			}
+			
+			
+			return false;	
+		};
+		
+		
+		function orbitAngleToZAxis(pos) {
+			var p = new THREE.Vector3(pos.x, 0, pos.z);
+			p.normalize();
+
+			// Relative to a line along the positive z-axis
+			var angle = p.angleTo(new THREE.Vector3(0, 0, 100)) ;
+			if (p.x < 0) {
+				angle = KMG.RAD_180 + (KMG.RAD_180 - angle);
+			}
+			return angle;
+		}
+
+		var sun = new KMG.SunlightPositioning();
+		var iauRotation = new KMG.IAUEarthRotation();
+		this.onRenderHandler = function(planet, config, context) {
+			
+
+			var earthPos = earthOrbit.positionAtTime(tickController.tickJulian);
+			var sunAngle = orbitAngleToZAxis(earthPos);
+			
+			var inclination = (new THREE.Vector3(earthPos.x, 0, earthPos.z)).angleTo(earthPos);
+			if (earthPos.y > 0) {
+				inclination *= -1;
+			}
+			
+			
+			
+			var rotationalQ = iauRotation.computeRotationalQuaternion(tickController.tickJulian);
+			
+			earth.rotation.setFromQuaternion(rotationalQ);
+			earth.updateMatrix();
+
+			context.lights.primaryDirectional.position = new THREE.Vector3(0.0, 0, -149597870.700);
+			context.lights.primaryDirectional.position.applyEuler(new THREE.Euler(0, sunAngle, 0, 'YXZ'));
+
+			for(var key in satelliteMap) {
+				var satellite = satelliteMap[key];
+				if (satellite.dot.visible) {
+					satellite.dot.position.applyQuaternion(rotationalQ.noMeridian);
+					satellite.path.rotation.setFromQuaternion(rotationalQ.noMeridian);
+				}
+			}
+			
+		};
+	};
+	engine.applySceneScriptInstance(sceneScript);
+	
+	
+	
+	
+	var guiChangeListener = function() {
+		
+	};
+	gui = new KMG.GUI(config, guiChangeListener);
+		
+	gui.onVisibilityChanged = function(visible) {
+		var setDisplay = visible ? "block" : "none";
+		$("#page-title-container").css("display", setDisplay);
+		$("#inline-instructions").css("display", setDisplay);
+		$("#instructions-link-container").css("display", setDisplay);
+		$("#stats").css("display", setDisplay);
+		$("#ce-left").css("display", setDisplay);
+		$("#share-buttons").css("display", setDisplay);
+	};
+	
+	
+	var optionsGui = gui.left.createBlock("Options", appOptions, function() {
+		gui.setOpacity(appOptions.guiOpacity);
+	});
+	optionsGui.setExpandedState(KMG.Closed);
+	optionsGui.addAction('Hide Controls', function() {
+		gui.setVisible(false);
+	});
+	optionsGui.addRange('guiOpacity', 'GUI Transparency:', 0.0, 1.0, 0.01);
+	
+	
+	
+	var modelGui = gui.left.createBlock("Model", modelOptions);
+	
+
+	var startLabel = (AppEnv.getUrlVar("start")) ? "Pause" : 'Start Animation';
+	modelGui.addAction(startLabel, function(e, btn) {
+		if (tickController.isActive()) {
+			btn.button( "option", "label", "Resume" );
+			tickController.stop();
+		} else {
+			btn.button( "option", "label", "Pause" );
+			tickController.start();
+		}
+	});
+	
+	modelGui.addToggle('pathsVisible', 'Show Orbits:').addChangeListener(function(property, title, oldValue, newValue) {
+		setPathVisibility(newValue);
+	});
+	modelOptions.tickDelayGui = .25;
+	var warp = AppEnv.getUrlVar("warp");
+	if (warp) {
+		modelOptions.tickDelayGui = parseFloat(warp);
+	}
+	modelGui.addRange('tickDelayGui', 'Animation Speed', 0, 1, .01);
+	
+	
+	
+	var categoryGui = gui.right.createBlock("Categories", categoryOptions);
+	if (filterTo) { 
+		categoryGui.setVisible(false);
+	}
+	var categoryToggle = function(gui, category) {
+		
+		gui.addToggle(category.category, category.description).addChangeListener(function(property, title, oldValue, newValue) {
+			setCategoryVisibility(category.category, newValue);
+		});
+	
+	};
+	
+	
+	for (var i = 0; i < categories.length; i++) {
+		var category = categories[i];
+		
+		categoryOptions[category.category] = category.enabled;
+		var c = new categoryToggle(categoryGui, category);
+	}
+
+	
+	//engine.context.controls.rotate(0, -KMG.RAD_90);
+	//engine.context.controls.rotate(30 * (Math.PI / 180), 0);
+
+	engine.start();
+	
+	KMG.keyCommandBindManager.engine = engine;
+	var bindResult = KMG.keyCommandBindManager.bindAll();
+	if (bindResult.screenshot) {
+		document.getElementById('inline-instructions').innerHTML	+= ", <i>f</i> for fullscreen.";
+	}
+	
+	
+	if (AppEnv.getUrlVar("start")) {
+		tickController.start();
+	}
+	
+	$.ajax({
+		url: "/data/tle/norad_tle_satellites_no_debris.json",
+		dataType: "script",
+		success: function(data, textStatus, jqxhr) {
+			
+
+			
+			
+			setLoadingStatus("Rendering satellites...");
+			for (var i = 0; i < KMG.ORBITS.length; i++) {
+				var group = KMG.ORBITS[i];
+				var groupName = group.name;
+				
+				if (categoryOptions[groupName] == undefined) {
+					categoryOptions[groupName] = false;
+					categoryGui.addToggle(groupName, groupName).addChangeListener(function(property, title, oldValue, newValue) {
+						setCategoryVisibility(property, newValue);
+					});
+				}
+				
+				
+				
+				for (var e = 0; e < group.entries.length; e++) {
+					var entry = group.entries[e];
+					
+					
+					
+					if (!filterTo || (filterTo == entry.satelliteNumber)) {
+					//if (entry.name == "ISS (ZARYA)") {
+						if (satelliteMap[entry.satelliteNumber]) {
+							satelliteMap[entry.satelliteNumber].categories.push(groupName);
+							continue;
+						}
+						
+						
+						var satellite = {
+							name : entry.name,
+							orbit : KMG.Util.clone(entry),
+							categories : [groupName],
+							dot : null,
+							path : null,
+							orbiter : null
+						};
+						satelliteMap[entry.satelliteNumber] = satellite;
+					}
+				}
+				
+			}
+			
+			for (key in satelliteMap) {
+				var satellite = satelliteMap[key];
+				createOrbitor(context, satellite, tickController);
+			}
+			
+			// Double check the category visibility...
+			for (var i = 0; i < KMG.ORBITS.length; i++) {
+				var group = KMG.ORBITS[i];
+				var groupName = group.name;
+				setCategoryVisibility(groupName, false);
+			}
+			
+			$( "#loading-screen" ).css("display", "none");
+		}
+	});
+	
+	
+	
+});	
+	
+	
+	
+	
+	
+	
+	</script>
+		
+			</head>
+	<body>
+
+		<div id="container"></div>
+		<div id="debug-message"></div>
+		
+		<div id="date-container"></div>
+		
+		<div id="no-webgl-for-you">
+			<div id="h5p-message"></div>
+			<script>window.h5please=function(a){ document.getElementById("h5p-message").innerHTML=a.html }</script>
+			<script async src="http://api.html5please.com/webgl+canvas.json?callback=h5please&texticon&html"></script>
+		</div>
+		
+		
+		
+		<div id="page-title-container" class="hide-on-embedded">
+			<a href="http://satellites.wthr.us/" id="page-title-link">Satellite Viewer</a>
+		</div>
+		
+		<div id="instructions-link-container" class="hide-on-embedded">
+			<a href="#" id="about-link">[ About/Instructions ]</a>
+		</div>
+
+		<div id="inline-instructions" class="hide-on-embedded">
+			Press <i>p</i> for screenshot
+		</div>
+		
+		<div id="error-message-dialog" title="Error">
+			<div class="dialog-section">
+				<p>
+					<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 50px 0;"></span>
+					<div id="error-message-title">Title</div>
+					<div id="error-message-body">Body</div>
+				</p>
+			</div>
+		</div>
+		
+		
+		
+		
+		<div id="dialog" title="About PHAViewer">
+			<h1><a href="/">Satellite Viewer</a></h1>
+			
+			<div class="dialog-section">
+				
+				
+				<div id="about-dialog-radios">
+					<input type="radio" id="radio_about" name="about_dialog_radio" value="about" checked="checked"/><label for="radio_about">About</label>
+					<input type="radio" id="radio_instructions" name="about_dialog_radio" value="instructions" /><label for="radio_instructions">Instructions</label>
+				</div>
+				
+				<div id="about-dialog-about">
+					<div class="dialog-subsection">
+						<b><em>About:</em></b> 
+						
+						<p>
+							Satellite Viewer is a realtime simulation of all tracked artificial satellites currently in Earth orbit. Orbital TLE information is
+							obtained daily from <a href="http://celestrak.com/" target="_BLANK">Celestrak</a> and processed for display. The resulting data is also
+							publicly available here and is updated each night at midnight, UTC. 
+							<ul>
+								<li><a href="http://planetmaker.wthr.us/data/tle/norad_tle_satellites_no_debris.json" target="_BLANK">All Satellites, No Debris</a></li>
+								<li><a href="http://planetmaker.wthr.us/data/tle/norad_tle_satellites.json" target="_BLANK">All Satellites, With Debris</a></li>
+							</ul>
+						</p>
+						
+						<p>
+						This is built as a WebGL experiment using <a href="http://threejs.org/" target="_BLANK">Three.js</a> and is expected
+						to work in the latest versions of Google Chrome, Firefox, & Internet Explorer 11.
+						</p>
+						
+					</div>
+					
+					<div class="dialog-subsection">
+						<b><em>Sources:</em></b> 
+						<ul>
+							<li>Orbital Elements: <a href="http://www.celestrak.com/NORAD/elements/master.asp" target="_BLANK">Celestrak</a></li>
+							<li>Planet Textures: <a href="http://earthobservatory.nasa.gov/Features/BlueMarble/" target="_BLANK">NASA Earth Observatory</a></li>
+							<li>Yale Bright Star Map: <a href="http://maps.jpl.nasa.gov/stars.html" target="_BLANK">Caltech/JPL</a></li>
+							<li>Loading Graphic: <a href="http://www.jpl.nasa.gov/spaceimages/details.php?id=PIA11449" target="_BLANK" title="On February 24, 2009, NASA's Orbiting Carbon Observatory satellite failed to reach orbit after its 1:55 a.m. PST liftoff Tuesday from California's Vandenberg Air Force Base. Preliminary indications are that the fairing on the Taurus XL launch vehicle failed to separate. The fairing is a clamshell structure that encapsulates the satellite as it travels through the atmosphere.">NASA/JPL</a></li>
+						</ul>
+					</div>
+
+
+					
+					<div class="dialog-section">
+						&copy; 2013 <a href="https://plus.google.com/113761354606401247247/about" target="_BLANK">Kevin M. Gill</a>. All Rights Reserved.
+					</div>
+				</div>
+				
+				<div id="about-dialog-instructions">
+					<div class="dialog-subsection">
+						<b><em>Instructions:</em></b> 
+						
+						<p>
+						
+						</p>
+						
+						<ul>
+							<li>Click 'Start' to begin the animation, then control with 'Pause' and 'Resume'.</li>
+							<li>Toggle the category checkboxes on the right to view those satellites. Some satellites may belong to
+								one or more categories. For example, the International Space Station belongs to both the "Potentially Visible"
+								and "Space Station" categories.
+							<li>Move your mouse over a satellite to see the name</li>
+							<li>Some orbits are colored to their category:
+								<ul>
+									<li>Gray: Most everything</li>
+									<li>White: Space Stations</li>
+									<li>Red: Debris/Space Junk</li>
+									<li>Green: Geostationary Satellites</li>
+									<li>Yellow: Military</li>
+								</ul>
+							</li>
+						</ul>
+						
+						<b><em>View Controls:</em></b>
+						Satellite Viewer uses mouse and keyboard based navigation controls, similar to those in Google Earth.
+						<ul>
+							<li><b>Rotating:</b> Rotate the scene by left-clicking and dragging with the mouse</li>
+							<li><b>Pitch/Roll:</b> Control the pitch & roll of the scene by holding down shift while left-clicking and
+					dragging with the mouse.</li>
+							<li><b>Panning:</b> Pan the scene (offsetting the planet from the center, similar to turning your head away from
+					the object of focus) by holding down Ctrl while left-clicking and dragging with the mouse.</li>
+							<li><b>Zooming:</b> Zoom either with the scroll-wheel or by right-clicking and dragging the mouse up or down.</li>
+						</ul>
+					</div>
+				</div>
+				
+				
+				
+				
+				
+				
+			</div>
+			
+			
+		</div>
+		
+		
+		<div id="share-buttons" class="hide-on-embedded share-buttons-left">
+			
+			<div class="share-button-left">
+			
+			
+				<div id="fb-root"></div>
+				<script> if (!AppEnv.isDevMode()) {(function(d, s, id) {
+				  var js, fjs = d.getElementsByTagName(s)[0];
+				  if (d.getElementById(id)) return;
+				  js = d.createElement(s); js.id = id;
+				  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+				  fjs.parentNode.insertBefore(js, fjs);
+				}(document, 'script', 'facebook-jssdk'));}</script>
+			
+				<div class="fb-like" data-href="http://satellites.apoapsys.com/" data-send="false" data-layout="button_count" data-width="300" data-show-faces="true" data-colorscheme="dark"></div>
+			
+			
+			</div>
+			
+			<div class="share-button-left">
+				<a href="https://twitter.com/share" class="twitter-share-button" data-via="kevinmgill" id="tweet-href"></a>
+				<script>
+				if (!AppEnv.isDevMode()) {
+					$("#tweet-href").text("Tweet");
+					!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+				}	
+				</script>
+			</div>
+
+			<div class="share-button-left">
+				<!-- Place this tag where you want the +1 button to render. -->
+				<div class="g-plusone" data-size="medium" data-annotation="inline" data-width="150"></div>
+
+				<!-- Place this tag after the last +1 button tag. -->
+				<script type="text/javascript">
+				
+				  (function() {
+				  if (!AppEnv.isDevMode()) {
+					var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+					po.src = 'https://apis.google.com/js/plusone.js';
+					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+					}
+				  })();
+				
+				</script>
+			</div>
+			
+			
+			
+			
+		</div>
+		
+		
+		<a id="ce-left" href="http://www.chromeexperiments.com/detail/satellite-viewer/" class="hide-on-embedded">
+			<span>This is a Chrome Experiment</span>
+		</a>
+		
+		
+		
+		
+		<div id="loading-screen">
+		
+			<div id="loading-content">
+				<img src="/img/sprites/PIA11449_500x500.jpg" id="loading-screen-graphic" title="This satellite, the Orbiting Carbon Observatory, never actually made it to orbit." />
+				<div id="loading-label">Loading&hellip;</div>
+				<div id="loading-status">Building Solar System&hellip;</div>
+			</div>
+
+		</div>
+		
+
+		<div id="loading-spinner">
+			<img src="img/spinner.gif" />
+		</div>
+	
+	<script>
+if (!AppEnv.isDevMode() && !AppEnv.noAnalytics()) {
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-3932152-11', 'wthr.us');
+  ga('send', 'pageview', {
+	'dimension1' : 'Satellites'
+  });
+
+}
+</script>
+	</body>
+</html>
