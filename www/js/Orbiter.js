@@ -7,6 +7,9 @@ var satelliteMap = {};
 var axisLines = null;
 
 var mouse = new THREE.Vector2(), INTERSECTED;
+var selectedSatellite = null;
+
+var projector = new THREE.Projector();
 
 
 var appOptions = {
@@ -211,6 +214,55 @@ function setPathVisibility(visible) {
 	}
 }
 
+function onDocumentMouseDown( event ) {
+
+	console.log('onDocumentMouseDown');
+
+	// console.log('onFrameHandler firing');
+
+	// tickController.speed = 1 + (1000 * modelOptions.tickDelayGui);
+
+	// $("#date-container").text(moment(tickController.tickDate).format("LLL"));
+	var context = engine.context;
+	var mouseOverRadius = 0.033;
+	
+	var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+	for(var key in satelliteMap) {
+		var satellite = satelliteMap[key];
+		
+		var pos = satellite.dot.position.clone();
+		projector.projectVector( pos, context.camera );
+		
+		if (vector.distanceTo(pos) <= mouseOverRadius && satellite.dot.visible) {
+			if (!satellite.nameSprite) {
+				satellite.nameSprite = new KMG.BillBoardTextObject(context, satellite.name, {});
+				context.primaryScene.add(satellite.nameSprite);
+			}
+
+			satellite.nameSprite.position = satellite.dot.position;
+			selectedSatellite = satellite;
+			context.camera.position.x = satellite.dot.position.x;
+			context.camera.position.y = satellite.dot.position.y;
+			context.camera.position.z = satellite.dot.position.z;
+
+			var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
+			context.camera.lookAt(vectorPointingAtEarth);
+
+			// console.log('nameSprite is attaching');
+		
+		} else if (satellite.nameSprite) {
+			context.primaryScene.remove(satellite.nameSprite);
+			satellite.nameSprite = null;
+		
+		}
+		
+	}
+	
+	
+	return false;	
+	
+}
+
 
 $(function() {
 
@@ -223,6 +275,8 @@ $(function() {
 	});
 	
 	setLoadingStatus("Setting up viewport&hellip;");
+
+	document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
 	
 	var visibleAboutDialogSection = function() {
@@ -357,6 +411,7 @@ $(function() {
 	
 	}
 	
+	//Click handler for adjusting camera to satellite
 	
 	engine = new KMG.Planet(document.getElementById( 'container' ), config, sceneCallbacks);
 	var context = engine.context;
@@ -398,32 +453,35 @@ $(function() {
 		
 		this.onFrameHandler = function(planet, config, context) {
 
+			// console.log('onFrameHandler firing');
+
 			tickController.speed = 1 + (1000 * modelOptions.tickDelayGui);
 
 			$("#date-container").text(moment(tickController.tickDate).format("LLL"));
 			
 			var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
-			for(var key in satelliteMap) {
-				var satellite = satelliteMap[key];
+			// for(var key in satelliteMap) {
+			// 	var satellite = satelliteMap[key];
 				
-				var pos = satellite.dot.position.clone();
-				projector.projectVector( pos, context.camera );
+			// 	var pos = satellite.dot.position.clone();
+			// 	projector.projectVector( pos, context.camera );
 				
-				if (vector.distanceTo(pos) <= mouseOverRadius && satellite.dot.visible) {
-					if (!satellite.nameSprite) {
-						satellite.nameSprite = new KMG.BillBoardTextObject(context, satellite.name, {});
-						context.primaryScene.add(satellite.nameSprite);
-					}
+			// 	if (vector.distanceTo(pos) <= mouseOverRadius && satellite.dot.visible) {
+			// 		if (!satellite.nameSprite) {
+			// 			satellite.nameSprite = new KMG.BillBoardTextObject(context, satellite.name, {});
+			// 			context.primaryScene.add(satellite.nameSprite);
+			// 		}
 
-					satellite.nameSprite.position = satellite.dot.position;
+			// 		satellite.nameSprite.position = satellite.dot.position;
+			// 		// console.log('nameSprite is attaching');
 				
-				} else if (satellite.nameSprite) {
-					context.primaryScene.remove(satellite.nameSprite);
-					satellite.nameSprite = null;
+			// 	} else if (satellite.nameSprite) {
+			// 		context.primaryScene.remove(satellite.nameSprite);
+			// 		satellite.nameSprite = null;
 				
-				}
+			// 	}
 				
-			}
+			// }
 			
 			
 			return false;	
@@ -580,6 +638,7 @@ $(function() {
 			
 			setLoadingStatus("Rendering satellites...");
 			for (var i = 0; i < KMG.ORBITS.length; i++) {
+			// for (var i = 0; i < 10; i++) {
 				var group = KMG.ORBITS[i];
 				var groupName = group.name;
 				
