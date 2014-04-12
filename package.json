@@ -1,0 +1,29 @@
+{
+  "name": "satellite-pilot",
+  "version": "0.0.0",
+  "description": "A viewer to see perspective from satellites in orbit",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SpaceOK/satellite-pilot.git"
+  },
+  "keywords": [
+    "spaceapps",
+    "nasa",
+    "satellite",
+    "pilot"
+  ],
+  "author": "",
+  "license": "ASF 2.0",
+  "bugs": {
+    "url": "https://github.com/SpaceOK/satellite-pilot/issues"
+  },
+  "homepage": "https://github.com/SpaceOK/satellite-pilot",
+  "dependencies": {
+    "express": "~4.0.0",
+    "logfmt": "~1.1.2"
+  }
+}
