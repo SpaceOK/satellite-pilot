@@ -1,48 +1,16 @@
 <html>
 	<head>
 		<title>My first Three.js app</title>
-		<style>canvas { width: 80%; height: 100% }</style>
+		<style>canvas { width: 100%; height: 100% }
+		body { margin: 0; overflow: hidden; background-color: #000; }
+		.tm  { position: absolute; top: 10px; right: 10px; }
+		</style>
 	</head>
 	<body>
+		<div id="webgl"></div>
 		<script src="js/three.min.js"></script>
-		<script src="js/planetmaker.js"></script>
-		<script>
-			// var canvas = document.getElementById("theCanvas");
-			// var renderer = new THREE.WebGLRenderer({ canvas: canvas });
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-			var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
-
-			var geometry = new THREE.CubeGeometry(1,1,1);
-			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			var cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
-
-			camera.position.z = 3;
-
-			function render() {
-				requestAnimationFrame(render);
-				cube.rotation.x += 0.01;
-				cube.rotation.y += 0.01;
-				renderer.render(scene, camera);
-			}
-			render();
-
-			function zoomIn() {
-				camera.position.z -= 1;
-			}
-
-			function zoomOut() {
-				camera.position.z += 1;
-			}
-		</script>
-		<canvas id="theCanvas"></canvas>
-		<div style="float: right">
-			<button onclick="zoomIn()">Zoom in</button>
-			<button onclick="zoomOut()">Zoom Out</button>
-		</div>
+		<script src="js/Detector.js"></script>
+		<script src="js/TrackballControls.js"></script>
+		<script src="js/earth.js"></script>
 	</body>
 </html>
