@@ -2,13 +2,10 @@
 <html>
 	<head>
 		<title>Orbits Viewer</title>
-		<style>canvas { width: 80%; height: 100% }</style>
+		<style>canvas { width: 100%; height: 100% }</style>
 		<meta charset="utf-8">
 		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
-
-	</head>
-	<body>
-		<canvas id="container"></canvas>
+		<link rel="stylesheet" href="css/planet.css">
 		<script src="js/jquery-1.11.0.min.js"></script>
 		<script src="js/three.min.js"></script>
 		<script src="js/moment.js"></script>
@@ -16,45 +13,202 @@
 		<script src="js/shaders.js"></script>
 		<script src="js/planetmaker.js"></script>
 		<script src="js/Orbiter.js"></script>
-		<script>
-			var canvasDoc = document.getElementById("container");
-			var renderer = new THREE.WebGLRenderer({ canvas: canvasDoc, width: '80%' });
-			var scene = new THREE.Scene();
-			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		<script src="js/jquery-ui-1.10.2.custom.min.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/THREEx.FullScreen.js"></script>
+		<script src="js/THREEx.screenshot.js"></script>
+		<style>
+#loading-screen {
+	background: #000000;
+	text-align: center;
+}
 
-			// var renderer = new THREE.WebGLRenderer();
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			// document.body.appendChild( renderer.domElement );
+#loading-content {
+	margin: auto;
+	
+}
 
-			var geometry = new THREE.CubeGeometry(1,1,1);
-			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			var cube = new THREE.Mesh( geometry, material );
-			scene.add( cube );
+#loading-label {
+	font-size: 1.5em;
+	font-weight: bold;
+	font-style: italic;
+	font-family: 'Average Sans', sans-serif;
+}
 
-			camera.position.z = 3;
+#loading-status {
+	font-size: 2.0em;
+	font-weight: bold;
+	font-family: 'Average Sans', sans-serif;
+}
 
-			function render() {
-				requestAnimationFrame(render);
-				cube.rotation.x += 0.01;
-				cube.rotation.y += 0.01;
-				renderer.render(scene, camera);
-			}
-			render();
 
-			function zoomIn() {
-				camera.position.z -= 1;
-			}
+#loading-screen-graphic {
+	vertical-align: middle;
+	margin-right: auto;
+	margin-left: auto;
+}
 
-			function zoomOut() {
-				camera.position.z += 1;
-			}
+#date-container {
+	position: absolute;
+	top: 20px;
+	right: 10px;
+	color: #FFFFFF;
+	width: 250px;
+	font-size: 1.6em;
+}
 
-			window.Orbiter = new Orbiter();
-			window.Orbiter.loadOrbits();
-		</script>
-		<div style="float: right">
-			<button onclick="zoomIn()">Zoom in</button>
-			<button onclick="zoomOut()">Zoom Out</button>
+
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div id="debug-message"></div>
+		
+		<div id="date-container"></div>
+		
+		<div id="no-webgl-for-you">
+			<div id="h5p-message"></div>
+			<script>window.h5please=function(a){ document.getElementById("h5p-message").innerHTML=a.html }</script>
+			<script async src="http://api.html5please.com/webgl+canvas.json?callback=h5please&texticon&html"></script>
 		</div>
+		
+		
+		
+		<div id="page-title-container" class="hide-on-embedded">
+			<a href="http://satellites.wthr.us/" id="page-title-link">Satellite Viewer</a>
+		</div>
+		
+		<div id="instructions-link-container" class="hide-on-embedded">
+			<a href="#" id="about-link">[ About/Instructions ]</a>
+		</div>
+
+		<div id="inline-instructions" class="hide-on-embedded">
+			Press <i>p</i> for screenshot
+		</div>
+		
+		<div id="error-message-dialog" title="Error">
+			<div class="dialog-section">
+				<p>
+					<span class="ui-icon ui-icon-alert" style="float: left; margin: 0 7px 50px 0;"></span>
+					<div id="error-message-title">Title</div>
+					<div id="error-message-body">Body</div>
+				</p>
+			</div>
+		</div>
+		
+		
+		
+		
+		<div id="dialog" title="About PHAViewer">
+			<h1><a href="/">Satellite Viewer</a></h1>
+			
+			<div class="dialog-section">
+				
+				
+				<div id="about-dialog-radios">
+					<input type="radio" id="radio_about" name="about_dialog_radio" value="about" checked="checked"/><label for="radio_about">About</label>
+					<input type="radio" id="radio_instructions" name="about_dialog_radio" value="instructions" /><label for="radio_instructions">Instructions</label>
+				</div>
+				
+				<div id="about-dialog-about">
+					<div class="dialog-subsection">
+						<b><em>About:</em></b> 
+						
+						<p>
+							Satellite Viewer is a realtime simulation of all tracked artificial satellites currently in Earth orbit. Orbital TLE information is
+							obtained daily from <a href="http://celestrak.com/" target="_BLANK">Celestrak</a> and processed for display. The resulting data is also
+							publicly available here and is updated each night at midnight, UTC. 
+							<ul>
+								<li><a href="http://planetmaker.wthr.us/data/tle/norad_tle_satellites_no_debris.json" target="_BLANK">All Satellites, No Debris</a></li>
+								<li><a href="http://planetmaker.wthr.us/data/tle/norad_tle_satellites.json" target="_BLANK">All Satellites, With Debris</a></li>
+							</ul>
+						</p>
+						
+						<p>
+						This is built as a WebGL experiment using <a href="http://threejs.org/" target="_BLANK">Three.js</a> and is expected
+						to work in the latest versions of Google Chrome, Firefox, & Internet Explorer 11.
+						</p>
+						
+					</div>
+					
+					<div class="dialog-subsection">
+						<b><em>Sources:</em></b> 
+						<ul>
+							<li>Orbital Elements: <a href="http://www.celestrak.com/NORAD/elements/master.asp" target="_BLANK">Celestrak</a></li>
+							<li>Planet Textures: <a href="http://earthobservatory.nasa.gov/Features/BlueMarble/" target="_BLANK">NASA Earth Observatory</a></li>
+							<li>Yale Bright Star Map: <a href="http://maps.jpl.nasa.gov/stars.html" target="_BLANK">Caltech/JPL</a></li>
+							<li>Loading Graphic: <a href="http://www.jpl.nasa.gov/spaceimages/details.php?id=PIA11449" target="_BLANK" title="On February 24, 2009, NASA's Orbiting Carbon Observatory satellite failed to reach orbit after its 1:55 a.m. PST liftoff Tuesday from California's Vandenberg Air Force Base. Preliminary indications are that the fairing on the Taurus XL launch vehicle failed to separate. The fairing is a clamshell structure that encapsulates the satellite as it travels through the atmosphere.">NASA/JPL</a></li>
+						</ul>
+					</div>
+
+
+					
+					<div class="dialog-section">
+						&copy; 2013 <a href="https://plus.google.com/113761354606401247247/about" target="_BLANK">Kevin M. Gill</a>. All Rights Reserved.
+					</div>
+				</div>
+				
+				<div id="about-dialog-instructions">
+					<div class="dialog-subsection">
+						<b><em>Instructions:</em></b> 
+						
+						<p>
+						
+						</p>
+						
+						<ul>
+							<li>Click 'Start' to begin the animation, then control with 'Pause' and 'Resume'.</li>
+							<li>Toggle the category checkboxes on the right to view those satellites. Some satellites may belong to
+								one or more categories. For example, the International Space Station belongs to both the "Potentially Visible"
+								and "Space Station" categories.
+							<li>Move your mouse over a satellite to see the name</li>
+							<li>Some orbits are colored to their category:
+								<ul>
+									<li>Gray: Most everything</li>
+									<li>White: Space Stations</li>
+									<li>Red: Debris/Space Junk</li>
+									<li>Green: Geostationary Satellites</li>
+									<li>Yellow: Military</li>
+								</ul>
+							</li>
+						</ul>
+						
+						<b><em>View Controls:</em></b>
+						Satellite Viewer uses mouse and keyboard based navigation controls, similar to those in Google Earth.
+						<ul>
+							<li><b>Rotating:</b> Rotate the scene by left-clicking and dragging with the mouse</li>
+							<li><b>Pitch/Roll:</b> Control the pitch & roll of the scene by holding down shift while left-clicking and
+					dragging with the mouse.</li>
+							<li><b>Panning:</b> Pan the scene (offsetting the planet from the center, similar to turning your head away from
+					the object of focus) by holding down Ctrl while left-clicking and dragging with the mouse.</li>
+							<li><b>Zooming:</b> Zoom either with the scroll-wheel or by right-clicking and dragging the mouse up or down.</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<a id="ce-left" href="http://www.chromeexperiments.com/detail/satellite-viewer/" class="hide-on-embedded">
+			<span>This is a Chrome Experiment</span>
+		</a>
+		
+		
+		
+		
+		<div id="loading-screen">
+		
+			<div id="loading-content">
+				<img src="/img/sprites/PIA11449_500x500.jpg" id="loading-screen-graphic" title="This satellite, the Orbiting Carbon Observatory, never actually made it to orbit." />
+				<div id="loading-label">Loading&hellip;</div>
+				<div id="loading-status">Building Solar System&hellip;</div>
+			</div>
+
+		</div>
+		
+
+		<div id="loading-spinner">
+			<img src="img/spinner.gif" />
+		</div>
+
 	</body>
 </html>
