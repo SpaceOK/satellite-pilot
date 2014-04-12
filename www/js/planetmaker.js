@@ -1425,40 +1425,40 @@ KMG.MoonCalc = function() {
 		var R = (1.000001018 * (1 - pow(e, 2))) / (1 + e * cos(v));
 		
 		// Something important...
-		var Î© = 125.04 - 1934.136 * T;
+		var Ω = 125.04 - 1934.136 * T;
 		
 		// Apparent longitude of the Sun
-		var Î» = O - 0.00569 - 0.00478 * sin(Î©);
+		var λ = O - 0.00569 - 0.00478 * sin(Ω);
 		
-		var Îµ = obliquity.Îµ;
+		var ε = obliquity.ε;
 		
-		var X = cos(Îµ) * sin(O);
+		var X = cos(ε) * sin(O);
 		var Y = cos(O);
 		
 		// Right Ascension of the Sun
-		var Î± = atan2(Y, X);
-		Î± = deg(Î±);
+		var α = atan2(Y, X);
+		α = deg(α);
 		
 		// Declination of the Sun
-		var Î´ = asin(sin(Îµ) * sin(O));
+		var δ = asin(sin(ε) * sin(O));
 		
-		Y = cos(Îµ) * sin(Î»);
-		X = cos(Î»);
+		Y = cos(ε) * sin(λ);
+		X = cos(λ);
 		
 		// Apparent Right Ascension of the Sun
-		var Î±App = atan2(Y, X);
-		Î±App = deg(Î±App);
+		var αApp = atan2(Y, X);
+		αApp = deg(αApp);
 		
 		// Apparent Declination of the Sun
-		var Î´App = asin(sin(Îµ + 0.00256 * cos(Î©)) * sin(Î»));
+		var δApp = asin(sin(ε + 0.00256 * cos(Ω)) * sin(λ));
 		
 		var sunPosition = {
-			Î© : Î©,
-			Î» : Î»,
-			Î± : Î±,
-			Î´ : Î´,
-			Î±App : Î±App,
-			Î´App : Î´App,
+			Ω : Ω,
+			λ : λ,
+			α : α,
+			δ : δ,
+			αApp : αApp,
+			δApp : δApp,
 			L0 : L0,
 			M : M,
 			e : e,
@@ -1696,7 +1696,7 @@ KMG.MoonCalc = function() {
 
 		// Longitude of teh ascending node of the Moon's mean orbit on the ecliptic
 		// Measured from the mean equinox of the date (ch. 22)
-		var Î© = 125.04452 - 1934.136261 * T + 0.0020708 * (T * T) + (T * T * T) / 450000;
+		var Ω = 125.04452 - 1934.136261 * T + 0.0020708 * (T * T) + (T * T * T) / 450000;
 
 
 
@@ -1711,7 +1711,7 @@ KMG.MoonCalc = function() {
 		var U = T / 100;
 		
 		// Mean obliquity of the ecliptic
-		var Îµ0 = degToDecimal(23, 26, 21.448)
+		var ε0 = degToDecimal(23, 26, 21.448)
 						-degToDecimal(0, 0, 46.8150) * T
 						-1.55 * pow(U, 2)
 						+ 1999.25 * pow(U, 3)
@@ -1727,17 +1727,17 @@ KMG.MoonCalc = function() {
 		M = deg(M);
 		M_ = deg(M_);
 		F = deg(F);
-		Î© = deg(Î©);
+		Ω = deg(Ω);
 
 
 		// Nutation in Longitude Limited accuracy:
-		var Î”Ïˆ = -17.20 * sin(Î©) - 1.32 * sin(2 * L) - 0.23 * sin(2 * L_) + 0.21 * sin(2 * Î©);
+		var Δψ = -17.20 * sin(Ω) - 1.32 * sin(2 * L) - 0.23 * sin(2 * L_) + 0.21 * sin(2 * Ω);
 		
 		// Nutation in Obliquity Limited accuracy:
-		var Î”Îµ = 9.20 * cos(Î©) + 0.57 * cos(2 * L) + 0.10 * cos(2 * L_) - 0.09 * cos(2 * Î©);
+		var Δε = 9.20 * cos(Ω) + 0.57 * cos(2 * L) + 0.10 * cos(2 * L_) - 0.09 * cos(2 * Ω);
 		
 		// True obliquity of the ecliptic
-		var Îµ = Îµ0 + Î”Îµ / 60 / 60;
+		var ε = ε0 + Δε / 60 / 60;
 		
 		/*
 		// Nutation in Longitude
@@ -1770,11 +1770,11 @@ KMG.MoonCalc = function() {
 			M : M,
 			M_ : M_,
 			F : F,
-			Î© : Î©,
-			Î”Ïˆ : Î”Ïˆ,
-			Î”Îµ : deg(Î”Îµ),
-			Îµ0 : Îµ0,
-			Îµ : Îµ
+			Ω : Ω,
+			Δψ : Δψ,
+			Δε : deg(Δε),
+			ε0 : ε0,
+			ε : ε
 		};
 		
 		if (lunarContext) {
@@ -1818,7 +1818,7 @@ KMG.MoonCalc = function() {
 		var F = 93.2720950 + 483202.0175233 * T - 0.0036539 * (T * T) - (T * T * T) / 3526000 + (T * T * T * T) / 863310000;
 		
 		// Longitude of the Mean Ascending Node (ch. 47.7)
-		var Î© = 125.0445479 - 1934.1362891 * T + 0.0020754 * (T * T) + (T * T * T) / 467441 - (T * T * T * T) / 60616000;
+		var Ω = 125.0445479 - 1934.1362891 * T + 0.0020754 * (T * T) + (T * T * T) / 467441 - (T * T * T * T) / 60616000;
 		
 		var A1 = 119.75 + 131.849 * T;
 		var A2 = 53.09 + 479264.290 * T;
@@ -1838,9 +1838,9 @@ KMG.MoonCalc = function() {
 		A3 = deg(A3);
 		
 		// Longitude of the Moon, unit is 0.000001 degrees
-		var Î£l = 0;
-		var Î£r = 0;
-		var Î£b = 0;
+		var Σl = 0;
+		var Σr = 0;
+		var Σb = 0;
 		
 		for (var i = 0; i < table47A.length; i++) {
 			var row = table47A[i];
@@ -1853,12 +1853,12 @@ KMG.MoonCalc = function() {
 				e = 1;
 			}
 			
-			Î£l += row[4] * e * sin(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);
-			Î£r += row[5] * e * cos(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);		
+			Σl += row[4] * e * sin(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);
+			Σr += row[5] * e * cos(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);		
 			
 		}
 		
-		Î£l += 3958 * sin(A1)
+		Σl += 3958 * sin(A1)
 				+ 1962 * sin(L_ - F)
 				+ 318 * sin(A2);
 		
@@ -1874,10 +1874,10 @@ KMG.MoonCalc = function() {
 				e = 1;
 			}
 			
-			Î£b += row[4] * e * sin(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);
+			Σb += row[4] * e * sin(row[0] * D + row[1] * M + row[2] * M_ + row[3] * F);
 		}
 		
-		Î£b += -2235 * sin(L_)
+		Σb += -2235 * sin(L_)
 				+ 382 * sin(A3)
 				+ 175 * sin(A1 - F)
 				+ 175 * sin(A1 + F)
@@ -1885,27 +1885,27 @@ KMG.MoonCalc = function() {
 				- 115 * sin(L_ + M_);
 		
 		// Geocentric longitude of the center of the Moon
-		var Î» = L_ + Î£l / 1000000;
+		var λ = L_ + Σl / 1000000;
 		
 		
 		
 		
 		// Geocentric latitude of the center of the Moon
-		var Î² = Î£b / 1000000;
+		var β = Σb / 1000000;
 		
 		// Distance in kilometers between the centers of the Earth and Moon.
-		var Î” = 385000.56 + Î£r / 1000;
+		var Δ = 385000.56 + Σr / 1000;
 		
 		// Equatorial horizontal parallax
-		var Ï€ = asin(6378.14 / Î”);
+		var π = asin(6378.14 / Δ);
 
 		
 		
 		// Nutation in Longitude
-		var Î”Ïˆ = nutation.Î”Ïˆ / 60 / 60;
+		var Δψ = nutation.Δψ / 60 / 60;
 		
 		// Nutation in Obliquity
-		var Î”Îµ = nutation.Î”Îµ;
+		var Δε = nutation.Δε;
 
 		
 
@@ -1913,25 +1913,25 @@ KMG.MoonCalc = function() {
 		var U = T / 100;
 
 		
-		var apparentÎ» = Î» + Î”Ïˆ;
+		var apparentλ = λ + Δψ;
 
 		// Mean obliquity of the ecliptic
-		var Îµ0 = nutation.Îµ0;
+		var ε0 = nutation.ε0;
 		
 		// True obliquity of the ecliptic
-		var Îµ = nutation.Îµ;
+		var ε = nutation.ε;
 		
 		// Apparent right ascension (ch. 13.3)
-		var X = cos(Î»);
-		var Y = (sin(Î») * cos(Îµ) - tan(Î²) * sin(Îµ));
-		var Î± = deg(atan2(Y, X));
-		//var Î± = atan((sin(Î») * cos(Îµ) - tan(Î²) * sin(Îµ)) / cos(Î»));
+		var X = cos(λ);
+		var Y = (sin(λ) * cos(ε) - tan(β) * sin(ε));
+		var α = deg(atan2(Y, X));
+		//var α = atan((sin(λ) * cos(ε) - tan(β) * sin(ε)) / cos(λ));
 		
 		// Apparent declination (ch. 13.4)
-		var Î´ = asin(sin(Î²) * cos(Îµ) + cos(Î²) * sin(Îµ) * sin(Î»));
+		var δ = asin(sin(β) * cos(ε) + cos(β) * sin(ε) * sin(λ));
 		
 		// Mean perigee of the lunar orbit
-		var Î  = 83.3532465 
+		var Π = 83.3532465 
 					+ 4096.0137287 * T 
 					- 0.0103200 * pow(T, 2)
 					- pow(T, 3) / 80053
@@ -1939,23 +1939,23 @@ KMG.MoonCalc = function() {
 
 		var position = {
 			T : T,
-			Î£l : Î£l, 
-			Î£r : Î£r, 
-			Î£b : Î£b,
-			Î» : Î»,
-			apparentÎ» : apparentÎ»,
-			Î²   : Î²,
-			Î”  : Î”,
-			Î©  : Î©,
-			Î”Ïˆ : Î”Ïˆ,
-			Î”Îµ : Î”Îµ,
-			Îµ0 : Îµ0,
-			Îµ : Îµ,
-			Î±  : Î±,
-			Î±By15 : Î± / 15,
-			Î´ : Î´,
-			Î  : Î ,
-			Ï€     : Ï€,
+			Σl : Σl, 
+			Σr : Σr, 
+			Σb : Σb,
+			λ : λ,
+			apparentλ : apparentλ,
+			β   : β,
+			Δ  : Δ,
+			Ω  : Ω,
+			Δψ : Δψ,
+			Δε : Δε,
+			ε0 : ε0,
+			ε : ε,
+			α  : α,
+			αBy15 : α / 15,
+			δ : δ,
+			Π : Π,
+			π     : π,
 			E      : E,
 			L      : L,
 			L_     : L_,
@@ -1999,19 +1999,19 @@ KMG.MoonCalc = function() {
 		var I = 1.54242; 	
 		
 		
-		var W = position.Î» - secToDecimal(nutation.Î”Ïˆ) - nutation.Î©;
+		var W = position.λ - secToDecimal(nutation.Δψ) - nutation.Ω;
 		W = deg(W);
 		
-		var X = (sin(W) * cos(position.Î²) * cos(I) - sin(position.Î²) * sin(I));
-		var Y = cos(W) * cos(position.Î²);
+		var X = (sin(W) * cos(position.β) * cos(I) - sin(position.β) * sin(I));
+		var Y = cos(W) * cos(position.β);
 		var A = deg(atan2(X, Y), 360);
-		//var A = atan((sin(W) * cos(position.Î²) * cos(I) - sin(position.Î²) * sin(I)) / (cos(W) * cos(position.Î²)))
+		//var A = atan((sin(W) * cos(position.β) * cos(I) - sin(position.β) * sin(I)) / (cos(W) * cos(position.β)))
 		
 		// Optical libration in longitude
 		var l_ = A - position.F;
 		
 		// Optical libration in latitude
-		var b_ = asin(-sin(W) * cos(position.Î²) * sin(I) - sin(position.Î²) * cos(I));
+		var b_ = asin(-sin(W) * cos(position.β) * sin(I) - sin(position.β) * cos(I));
 		
 		var optLibr = {
 			T : T,
@@ -2061,14 +2061,14 @@ KMG.MoonCalc = function() {
 		var F = position.F;
 		var D = position.D;
 		var E = position.E;
-		var Î© = nutation.Î©;
+		var Ω = nutation.Ω;
 		
 		var b_ = optLibr.b_;
 		
 		var K1 = 119.75 + 131.849 * T;
 		var K2 = 72.56 + 20.186 * T;
 		
-		var Ï = - 0.02752 * cos(M_)
+		var ρ = - 0.02752 * cos(M_)
 				- 0.02245 * sin(F)
 				+ 0.00684 * cos(M_ - 2 * F)
 				- 0.00293 * cos(2 * F)
@@ -2080,7 +2080,7 @@ KMG.MoonCalc = function() {
 				+ 0.00014 * cos(M_ + 2 * F - 2 * D);
 				
 		
-		var Ïƒ = - 0.02816 * sin(M_)
+		var σ = - 0.02816 * sin(M_)
 				+ 0.02244 * cos(F)
 				- 0.00682 * sin(M_ - 2 * F)
 				- 0.00279 * sin(2 * F)
@@ -2094,12 +2094,12 @@ KMG.MoonCalc = function() {
 				+ 0.00013 * sin(M_ + 2 * F - 2 * D)
 				- 0.00010 * cos(M_ - 3 * F);
 		
-		var Ï„ = + 0.02520 * E * sin(M)
+		var τ = + 0.02520 * E * sin(M)
 				+ 0.00473 * sin(2 * M_ - 2 * F)
 				- 0.00467 * sin(M_)
 				+ 0.00396 * sin(K1)
 				+ 0.00276 * sin(2 * M_ - 2 * D)
-				+ 0.00196 * sin(Î©)
+				+ 0.00196 * sin(Ω)
 				- 0.00183 * cos(M_ - F)
 				+ 0.00115 * sin(M_ - 2 * D)
 				- 0.00096 * sin(M_ - D)
@@ -2114,8 +2114,8 @@ KMG.MoonCalc = function() {
 				- 0.00012 * sin(2 * M_)
 				+ 0.00011 * sin(2 * M_ - 2 * M - 2 * D);
 		
-		var l__ = -Ï„ + (Ï * cos(A) + Ïƒ * sin(A)) * tan(b_);
-		var b__ = Ïƒ * cos(A) - Ï * sin(A);
+		var l__ = -τ + (ρ * cos(A) + σ * sin(A)) * tan(b_);
+		var b__ = σ * cos(A) - ρ * sin(A);
 		
 		
 		var physLibr = {
@@ -2125,9 +2125,9 @@ KMG.MoonCalc = function() {
 			D : D,
 			E : E,
 			A : A,
-			Ï : Ï,
-			Ïƒ : Ïƒ,
-			Ï„ : Ï„,
+			ρ : ρ,
+			σ : σ,
+			τ : τ,
 			K1 : K1,
 			K2 : K2,
 			l__ : l__,
@@ -2208,38 +2208,38 @@ KMG.MoonCalc = function() {
 		
 		
 		// Geocentric right ascension of the Sun
-		var Î±0 = sunPos.Î±;
+		var α0 = sunPos.α;
 		
 		// Geocentric declination of the Sun
-		var Î´0 = sunPos.Î´;
+		var δ0 = sunPos.δ;
 		
 		// Geocentric longitude of Sun
-		var Î»0 = sunPos.O;
+		var λ0 = sunPos.O;
 
 		// Geocentric right ascension of the Moon
-		var Î± = position.Î±;
+		var α = position.α;
 		
 		// Geocentric declination of the Moon
-		var Î´ = position.Î´;
+		var δ = position.δ;
 		
 		// Geocentric longitude of Moon
-		var Î» = position.Î»;
+		var λ = position.λ;
 		
 		
 		// Distance from the Earth to the Sun
 		var R = sunPos.R * 149597870.700;
 		
 		// Distance from the Earth to the Moon
-		var Î” = position.Î”;
+		var Δ = position.Δ;
 		
 		// Geocentric latitude of the center of the Moon
-		var Î² = position.Î²;
+		var β = position.β;
 		
 		
 		
-		var Î»H = Î»0 + 180 + (Î”/R) * 57.296 * cos(Î²) * sin(Î»0 - Î»);
+		var λH = λ0 + 180 + (Δ/R) * 57.296 * cos(β) * sin(λ0 - λ);
 		
-		var Î²H =  Î” / R * Î²;
+		var βH =  Δ / R * β;
 		
 		
 		
@@ -2247,22 +2247,22 @@ KMG.MoonCalc = function() {
 		// Inclination of the mean lunar equator to the ecliptic
 		var I = 1.54242; 	
 		
-		var W = Î»H - secToDecimal(nutation.Î”Ïˆ) - nutation.Î©;
+		var W = λH - secToDecimal(nutation.Δψ) - nutation.Ω;
 		W = deg(W);
 		
-		var X = (sin(W) * cos(Î²H) * cos(I) - sin(Î²H) * sin(I));
-		var Y = cos(W) * cos(Î²H);
+		var X = (sin(W) * cos(βH) * cos(I) - sin(βH) * sin(I));
+		var Y = cos(W) * cos(βH);
 		var A = deg(atan2(X, Y), 360);
 
 		// Optical libration in longitude
 		var l_0 = A - position.F;
 		
 		// Optical libration in latitude
-		var b_0 = asin(-sin(W) * cos(Î²H) * sin(I) - sin(Î²H) * cos(I));
+		var b_0 = asin(-sin(W) * cos(βH) * sin(I) - sin(βH) * cos(I));
 		
 		
-		var l__0 = -physLibr.Ï„ + (physLibr.Ï * cos(A) + physLibr.Ïƒ * sin(A)) * tan(b_0);
-		var b__0 = physLibr.Ïƒ * cos(A) - physLibr.Ï * sin(A)
+		var l__0 = -physLibr.τ + (physLibr.ρ * cos(A) + physLibr.σ * sin(A)) * tan(b_0);
+		var b__0 = physLibr.σ * cos(A) - physLibr.ρ * sin(A)
 		
 		var l0 = l_0 + l__0;
 		var b0 = b_0 + b__0;;
@@ -2279,8 +2279,8 @@ KMG.MoonCalc = function() {
 		
 		var seleSunPosition = {
 			T : T,
-			Î»H : Î»H,
-			Î²H : Î²H,
+			λH : λH,
+			βH : βH,
 			l0 : l0,
 			b0 : b0,
 			c0 : c0,
@@ -2291,7 +2291,7 @@ KMG.MoonCalc = function() {
 			W : W,
 			A : A,
 			R : R,
-			Î” : Î”
+			Δ : Δ
 		};
 		
 		if (lunarContext) {
@@ -2380,30 +2380,30 @@ KMG.MoonCalc = function() {
 		
 		var b = ttlLibr.b;
 		
-		var Î© = nutation.Î©;
+		var Ω = nutation.Ω;
 		
 		// Inclination of the mean lunar equator to the ecliptic
 		var I = 1.54242
 		
-		var Î”Ïˆ = nutation.Î”Ïˆ;
+		var Δψ = nutation.Δψ;
 		
-		var Ï = physLibr.Ï;
+		var ρ = physLibr.ρ;
 		
-		var Îµ = position.Îµ;
+		var ε = position.ε;
 		
-		var Î± = position.Î±;
+		var α = position.α;
 		
-		var Ïƒ = physLibr.Ïƒ;
+		var σ = physLibr.σ;
 		
-		var V = Î© + Î”Ïˆ + Ïƒ / sin(I);
+		var V = Ω + Δψ + σ / sin(I);
 		
-		var Y = sin(I + Ï) * sin(V);
+		var Y = sin(I + ρ) * sin(V);
 		
-		var X = sin(I + Ï) * cos(V) * cos(Îµ) - cos(I + Ï) * sin(Îµ);
+		var X = sin(I + ρ) * cos(V) * cos(ε) - cos(I + ρ) * sin(ε);
 		
-		var Ï‰ = atan2(Y, X);
+		var ω = atan2(Y, X);
 		
-		var P = asin((sqrt(pow(X, 2) + pow(Y, 2)) * cos(Î± - Ï‰)) / cos(b));
+		var P = asin((sqrt(pow(X, 2) + pow(Y, 2)) * cos(α - ω)) / cos(b));
 		
 		var posAngle = {
 			P : P
@@ -2437,34 +2437,34 @@ KMG.MoonCalc = function() {
 		
 		
 		// Geocentric right ascension of the Sun
-		var Î±0 = sunPos.Î±App;
+		var α0 = sunPos.αApp;
 		
 		// Geocentric declination of the Sun
-		var Î´0 = sunPos.Î´App;
+		var δ0 = sunPos.δApp;
 		
 		// Geocentric longitude of Sun
-		var Î»0 = sunPos.O;
+		var λ0 = sunPos.O;
 		
 		// Geocentric right ascension of the Moon
-		var Î± = position.Î±;
+		var α = position.α;
 		
 		// Geocentric declination of the Moon
-		var Î´ = position.Î´;
+		var δ = position.δ;
 		
 		// Geocentric longitude of Moon
-		var Î» = position.Î»;
+		var λ = position.λ;
 		
 		// Geocentric elongation of the Moon from the Sun
-		var Ïˆ = acos(sin(Î´0) * sin(Î´) + cos(Î´0) * cos(Î´) * cos(Î±0 - Î±));
+		var ψ = acos(sin(δ0) * sin(δ) + cos(δ0) * cos(δ) * cos(α0 - α));
 		
 		// Distance from the Earth to the Sun
 		var R = sunPos.R * 149597870.700;
 		
 		// Distance from the Earth to the Moon
-		var Î” = position.Î” ;
+		var Δ = position.Δ ;
 		
-		var Y = R * sin(Ïˆ);
-		var X =  Î” - R * cos(Ïˆ)
+		var Y = R * sin(ψ);
+		var X =  Δ - R * cos(ψ)
 		
 		// Phase angle (Selenocentric elongation of the Earth from the Sun)
 		var i = atan2(Y, X) ;
@@ -2492,18 +2492,18 @@ KMG.MoonCalc = function() {
 		// Illuminated fraction of the Moon's disk
 		var k = (1 + cos(i)) / 2;
 		
-		var Y = cos(Î´0) * sin(Î±0 - Î±);
-		var X = sin(Î´0) * cos(Î´) - cos(Î´0) * sin(Î´) * cos(Î±0 - Î±);
+		var Y = cos(δ0) * sin(α0 - α);
+		var X = sin(δ0) * cos(δ) - cos(δ0) * sin(δ) * cos(α0 - α);
 		
 		// Position angle of the Moon's bright limb
-		var Ï‡ = atan2(Y, X);
+		var χ = atan2(Y, X);
 		
 		
 		var illumFrac = {
 			T : T,
 			k : k,
 			i : i,
-			Ï‡ : Ï‡
+			χ : χ
 		};
 		
 		if (lunarContext) {
@@ -4618,7 +4618,7 @@ KMG.CustomMoonOrbit = function()
 	function distanceAtTime(jd) {
 		var t = julianDayToCenturies(jd);
 		var pos = moonCalc.positionOfTheMoon(t, context);
-		return pos.Î” / 149597870.700;
+		return pos.Δ / 149597870.700;
 	}
 	
 	function positionAtTime(jd) {
@@ -4626,8 +4626,8 @@ KMG.CustomMoonOrbit = function()
 		var pos = moonCalc.positionOfTheMoon(t, context);
 		var distance = distanceAtTime(jd);
 		
-		var l = pos.Î» * KMG.PI_BY_180;
-		var b = pos.Î² * KMG.PI_BY_180;
+		var l = pos.λ * KMG.PI_BY_180;
+		var b = pos.β * KMG.PI_BY_180;
 		
 		var x = distance * Math.cos(b) * Math.cos(l);
 		var y = distance * Math.cos(b) * Math.sin(l);
@@ -4701,20 +4701,20 @@ KMG.Jupiter.computeElements = function(t) {
 	var w4 = 322.6186 - 0.00175934 * t;
 	
 	// Principle inequality in the longitude of Jupiter
-	var Î“ = 0.33033 * KMG.Math.dsin(163.679 + 0.0010512 * t) + 0.03439 * KMG.Math.dsin(34.486 - 0.0161731 * t);
+	var Γ = 0.33033 * KMG.Math.dsin(163.679 + 0.0010512 * t) + 0.03439 * KMG.Math.dsin(34.486 - 0.0161731 * t);
 	
 	// Phase of free libration
-	var Î¦ = 199.6766 + 0.17379190 * t;
+	var Φ = 199.6766 + 0.17379190 * t;
 	
 	// Longitude of the node of the equator of Jupiter on the ecliptic
-	var Î¨ = 316.5182 - 0.00000208 * t;
+	var Ψ = 316.5182 - 0.00000208 * t;
 	
 	// Mean anomalies of Jupiter and Saturn
-	var G = 30.23756 + 0.0830925701 * t + Î“;
+	var G = 30.23756 + 0.0830925701 * t + Γ;
 	var G_ = 31.97853 + 0.0334597339 * t;
 	
 	// Longitude of the perihelion of Jupiter
-	var Î  = 13.469942;
+	var Π = 13.469942;
 	
 	return {
 		l1 : l1,
@@ -4732,12 +4732,12 @@ KMG.Jupiter.computeElements = function(t) {
 		w3 : w3,
 		w4 : w4,
 		
-		Î“ : Î“,
-		Î¦ : Î¦,
-		Î¨ : Î¨,
+		Γ : Γ,
+		Φ : Φ,
+		Ψ : Ψ,
 		G : G,
 		G_ : G_,
-		Î  : Î 
+		Π : Π
 		
 	};
 	
@@ -4765,29 +4765,29 @@ KMG.CustomIoOrbit = function() {
 		//var t = (jd - 2443000.5) / 36525;
 		var e = KMG.Jupiter.computeElements(t);
 		
-		var LPEJ = e.Î ;
+		var LPEJ = e.Π;
 		
 		// Calculate periodic terms for longitude
-		var Î£1 = 0.47259*KMG.Math.dsin(2*(e.l1 - e.l2)) - 0.03478*KMG.Math.dsin(e.p3 - e.p4)
-				+ 0.01081*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p3) + 7.38e-3*KMG.Math.dsin(e.Î¦)
+		var Σ1 = 0.47259*KMG.Math.dsin(2*(e.l1 - e.l2)) - 0.03478*KMG.Math.dsin(e.p3 - e.p4)
+				+ 0.01081*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p3) + 7.38e-3*KMG.Math.dsin(e.Φ)
 				+ 7.13e-3*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p2) - 6.74e-3*KMG.Math.dsin(e.p1 + e.p3 - 2*LPEJ - 2*e.G)
 				+ 6.66e-3*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p4) + 4.45e-3*KMG.Math.dsin(e.l1 - e.p3)
-				- 3.54e-3*KMG.Math.dsin(e.l1 - e.l2) - 3.17e-3*KMG.Math.dsin(2*(e.Î¨ - LPEJ))
+				- 3.54e-3*KMG.Math.dsin(e.l1 - e.l2) - 3.17e-3*KMG.Math.dsin(2*(e.Ψ - LPEJ))
 				+ 2.65e-3*KMG.Math.dsin(e.l1 - e.p4) - 1.86e-3*KMG.Math.dsin(e.G)
 				+ 1.62e-3*KMG.Math.dsin(e.p2 - e.p3) + 1.58e-3*KMG.Math.dsin(4*(e.l1 - e.l2))
-				- 1.55e-3*KMG.Math.dsin(e.l1 - e.l3) - 1.38e-3*KMG.Math.dsin(e.Î¨ + e.w3 - 2*LPEJ - 2*e.G)
+				- 1.55e-3*KMG.Math.dsin(e.l1 - e.l3) - 1.38e-3*KMG.Math.dsin(e.Ψ + e.w3 - 2*LPEJ - 2*e.G)
 				- 1.15e-3*KMG.Math.dsin(2*(e.l1 - 2*e.l2 + e.w2)) + 8.9e-4*KMG.Math.dsin(e.p2 - e.p4)
 				+ 8.5e-4*KMG.Math.dsin(e.l1 + e.p3 - 2*LPEJ - 2*e.G) + 8.3e-4*KMG.Math.dsin(e.w2 - e.w3)
-				+ 5.3e-4*KMG.Math.dsin(e.Î¨ - e.w2);
-		Î£1 = KMG.Math.clamp(Î£1, 360.0);
-		//Î£1 = degToRad(Î£1);
-		var L = e.l1 + Î£1;
+				+ 5.3e-4*KMG.Math.dsin(e.Ψ - e.w2);
+		Σ1 = KMG.Math.clamp(Σ1, 360.0);
+		//Σ1 = degToRad(Σ1);
+		var L = e.l1 + Σ1;
 
 		// Calculate periodic terms for the tangent of the latitude
 		var B = 6.393e-4*KMG.Math.dsin(L - e.w1) + 1.825e-4*KMG.Math.dsin(L - e.w2)
-			+ 3.29e-5*KMG.Math.dsin(L - e.w3) - 3.11e-5*KMG.Math.dsin(L - e.Î¨)
-			+ 9.3e-6*KMG.Math.dsin(L - e.w4) + 7.5e-6*KMG.Math.dsin(3*L - 4*e.l2 - 1.9927*Î£1 + e.w2)
-			+ 4.6e-6*KMG.Math.dsin(L + e.Î¨ - 2*LPEJ - 2*e.G);
+			+ 3.29e-5*KMG.Math.dsin(L - e.w3) - 3.11e-5*KMG.Math.dsin(L - e.Ψ)
+			+ 9.3e-6*KMG.Math.dsin(L - e.w4) + 7.5e-6*KMG.Math.dsin(3*L - 4*e.l2 - 1.9927*Σ1 + e.w2)
+			+ 4.6e-6*KMG.Math.dsin(L + e.Ψ - 2*LPEJ - 2*e.G);
 		B = KMG.Math.datan(B);
 
 		// Calculate the periodic terms for distance
@@ -4852,39 +4852,39 @@ KMG.CustomEuropaOrbit = function() {
 		var t = (jd - 2443000.5);// / 36525;
 		var e = KMG.Jupiter.computeElements(t);
 		
-		var LPEJ = e.Î ;
+		var LPEJ = e.Π;
 		
 		
 		// Calculate periodic terms for lone.Gitude
-		var Î£1 = 1.06476*KMG.Math.dsin(2*(e.l2 - e.l3)) + 0.04256*KMG.Math.dsin(e.l1 - 2*e.l2 + e.p3)
+		var Σ1 = 1.06476*KMG.Math.dsin(2*(e.l2 - e.l3)) + 0.04256*KMG.Math.dsin(e.l1 - 2*e.l2 + e.p3)
 			  + 0.03581*KMG.Math.dsin(e.l2 - e.p3) + 0.02395*KMG.Math.dsin(e.l1 - 2*e.l2 + e.p4)
-			  + 0.01984*KMG.Math.dsin(e.l2 - e.p4) - 0.01778*KMG.Math.dsin(e.Î¦)
+			  + 0.01984*KMG.Math.dsin(e.l2 - e.p4) - 0.01778*KMG.Math.dsin(e.Φ)
 			  + 0.01654*KMG.Math.dsin(e.l2 - e.p2) + 0.01334*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p2)
 			  + 0.01294*KMG.Math.dsin(e.p3 - e.p4) - 0.01142*KMG.Math.dsin(e.l2 - e.l3)
-			  - 0.01057*KMG.Math.dsin(e.G) - 7.75e-3*KMG.Math.dsin(2*(e.Î¨ - LPEJ))
+			  - 0.01057*KMG.Math.dsin(e.G) - 7.75e-3*KMG.Math.dsin(2*(e.Ψ - LPEJ))
 			  + 5.24e-3*KMG.Math.dsin(2*(e.l1 - e.l2)) - 4.6e-3*KMG.Math.dsin(e.l1 - e.l3)
-			  + 3.16e-3*KMG.Math.dsin(e.Î¨ - 2*e.G + e.w3 - 2*LPEJ) - 2.03e-3*KMG.Math.dsin(e.p1 + e.p3 - 2*LPEJ - 2*e.G)
-			  + 1.46e-3*KMG.Math.dsin(e.Î¨ - e.w3) - 1.45e-3*KMG.Math.dsin(2*e.G)
-			  + 1.25e-3*KMG.Math.dsin(e.Î¨ - e.w4) - 1.15e-3*KMG.Math.dsin(e.l1 - 2*e.l3 + e.p3)
+			  + 3.16e-3*KMG.Math.dsin(e.Ψ - 2*e.G + e.w3 - 2*LPEJ) - 2.03e-3*KMG.Math.dsin(e.p1 + e.p3 - 2*LPEJ - 2*e.G)
+			  + 1.46e-3*KMG.Math.dsin(e.Ψ - e.w3) - 1.45e-3*KMG.Math.dsin(2*e.G)
+			  + 1.25e-3*KMG.Math.dsin(e.Ψ - e.w4) - 1.15e-3*KMG.Math.dsin(e.l1 - 2*e.l3 + e.p3)
 			  - 9.4e-4*KMG.Math.dsin(2*(e.l2 - e.w2)) + 8.6e-4*KMG.Math.dsin(2*(e.l1 - 2*e.l2 + e.w2))
 			  - 8.6e-4*KMG.Math.dsin(5*e.G_ - 2*e.G + 0.9115) - 7.8e-4*KMG.Math.dsin(e.l2 - e.l4)
 			  - 6.4e-4*KMG.Math.dsin(3*e.l3 - 7*e.l4 + 4*e.p4) + 6.4e-4*KMG.Math.dsin(e.p1 - e.p4)
 			  - 6.3e-4*KMG.Math.dsin(e.l1 - 2*e.l3 + e.p4) + 5.8e-4*KMG.Math.dsin(e.w3 - e.w4)
-			  + 5.6e-4*KMG.Math.dsin(2*(e.Î¨ - LPEJ - e.G)) + 5.6e-4*KMG.Math.dsin(2*(e.l2 - e.l4))
+			  + 5.6e-4*KMG.Math.dsin(2*(e.Ψ - LPEJ - e.G)) + 5.6e-4*KMG.Math.dsin(2*(e.l2 - e.l4))
 			  + 5.5e-4*KMG.Math.dsin(2*(e.l1 - e.l3)) + 5.2e-4*KMG.Math.dsin(3*e.l3 - 7*e.l4 + e.p3 +3*e.p4)
 			  - 4.3e-4*KMG.Math.dsin(e.l1 - e.p3) + 4.1e-4*KMG.Math.dsin(5*(e.l2 - e.l3))
 			  + 4.1e-4*KMG.Math.dsin(e.p4 - LPEJ) + 3.2e-4*KMG.Math.dsin(e.w2 - e.w3)
 			  + 3.2e-4*KMG.Math.dsin(2*(e.l3 - e.G - LPEJ));
-		Î£1 = KMG.Math.clamp(Î£1, 360.0);
-		//Î£1 = dee.GToRad(Î£1);
-		var L = e.l2 + Î£1;
+		Σ1 = KMG.Math.clamp(Σ1, 360.0);
+		//Σ1 = dee.GToRad(Σ1);
+		var L = e.l2 + Σ1;
 
 		// Calculate periodic terms for the tane.Gent of the latitude
 		var B = 8.1004e-3*KMG.Math.dsin(L - e.w2) + 4.512e-4*KMG.Math.dsin(L - e.w3)
-		  - 3.284e-4*KMG.Math.dsin(L - e.Î¨) + 1.160e-4*KMG.Math.dsin(L - e.w4)
-		  + 2.72e-5*KMG.Math.dsin(e.l1 - 2*e.l3 + 1.0146*Î£1 + e.w2) - 1.44e-5*KMG.Math.dsin(L - e.w1)
-		  + 1.43e-5*KMG.Math.dsin(L + e.Î¨ - 2*LPEJ - 2*e.G) + 3.5e-6*KMG.Math.dsin(L - e.Î¨ + e.G)
-		  - 2.8e-6*KMG.Math.dsin(e.l1 - 2*e.l3 + 1.0146*Î£1 + e.w3);
+		  - 3.284e-4*KMG.Math.dsin(L - e.Ψ) + 1.160e-4*KMG.Math.dsin(L - e.w4)
+		  + 2.72e-5*KMG.Math.dsin(e.l1 - 2*e.l3 + 1.0146*Σ1 + e.w2) - 1.44e-5*KMG.Math.dsin(L - e.w1)
+		  + 1.43e-5*KMG.Math.dsin(L + e.Ψ - 2*LPEJ - 2*e.G) + 3.5e-6*KMG.Math.dsin(L - e.Ψ + e.G)
+		  - 2.8e-6*KMG.Math.dsin(e.l1 - 2*e.l3 + 1.0146*Σ1 + e.w3);
 		B = KMG.Math.datan(B);
 
 		// Calculate the periodic terms for distance
@@ -4954,14 +4954,14 @@ KMG.CustomGanymedeOrbit = function() {
 		var t = (jd - 2443000.5);// / 36525;
 		var e = KMG.Jupiter.computeElements(t);
 		
-		var LPEJ = e.Î ;
-		var psi = e.Î¨;
-		var phi = e.Î¦;
+		var LPEJ = e.Π;
+		var psi = e.Ψ;
+		var phi = e.Φ;
 
 		  
 		  
 		//Calculate periodic terms for lone.Gitude
-		var Î£1 = 0.1649*KMG.Math.dsin(e.l3 - e.p3) + 0.09081*KMG.Math.dsin(e.l3 - e.p4)
+		var Σ1 = 0.1649*KMG.Math.dsin(e.l3 - e.p3) + 0.09081*KMG.Math.dsin(e.l3 - e.p4)
 			  - 0.06907*KMG.Math.dsin(e.l2 - e.l3) + 0.03784*KMG.Math.dsin(e.p3 - e.p4)
 			  + 0.01846*KMG.Math.dsin(2*(e.l3 - e.l4)) - 0.01340*KMG.Math.dsin(e.G)
 			  - 0.01014*KMG.Math.dsin(2*(psi - LPEJ)) + 7.04e-3*KMG.Math.dsin(e.l2 - 2*e.l3 + e.p3)
@@ -4983,17 +4983,17 @@ KMG.CustomGanymedeOrbit = function() {
 			  + 2.6e-4*KMG.Math.dsin(e.l3 - LPEJ - e.G) + 2.4e-4*KMG.Math.dsin(e.l2 - 3*e.l3 + 2*e.l4)
 			  + 2.1e-4*KMG.Math.dsin(2*(e.l3 - LPEJ - e.G)) - 2.1e-4*KMG.Math.dsin(e.l3 - e.p2)
 			  + 1.7e-4*KMG.Math.dsin(e.l3 - e.p3);
-		Î£1 = KMG.Math.clamp(Î£1, 360.0);
+		Σ1 = KMG.Math.clamp(Σ1, 360.0);
 		//sie.Gma = dee.GToRad(sie.Gma);
-		var L = e.l3 + Î£1;
+		var L = e.l3 + Σ1;
 
 		//Calculate periodic terms for the tane.Gent of the latitude
 		var B = 3.2402e-3*KMG.Math.dsin(L - e.w3) - 1.6911e-3*KMG.Math.dsin(L - psi)
 		  + 6.847e-4*KMG.Math.dsin(L - e.w4) - 2.797e-4*KMG.Math.dsin(L - e.w2)
 		  + 3.21e-5*KMG.Math.dsin(L + psi - 2*LPEJ - 2*e.G) + 5.1e-6*KMG.Math.dsin(L - psi + e.G)
 		  - 4.5e-6*KMG.Math.dsin(L - psi - e.G) - 4.5e-6*KMG.Math.dsin(L + psi - 2*LPEJ)
-		  + 3.7e-6*KMG.Math.dsin(L + psi - 2*LPEJ - 3*e.G) + 3.0e-6*KMG.Math.dsin(2*e.l2 - 3*L + 4.03*Î£1 + e.w2)
-		  - 2.1e-6*KMG.Math.dsin(2*e.l2 - 3*L + 4.03*Î£1 + e.w3);
+		  + 3.7e-6*KMG.Math.dsin(L + psi - 2*LPEJ - 3*e.G) + 3.0e-6*KMG.Math.dsin(2*e.l2 - 3*L + 4.03*Σ1 + e.w2)
+		  - 2.1e-6*KMG.Math.dsin(2*e.l2 - 3*L + 4.03*Σ1 + e.w3);
 		B = KMG.Math.datan(B);
 
 		//Calculate the periodic terms for distance
@@ -5062,14 +5062,14 @@ KMG.CustomCallistoOrbit = function() {
 		var t = (jd - 2443000.5);// / 36525;
 		var e = KMG.Jupiter.computeElements(t);
 		
-		var LPEJ = e.Î ;
-		var psi = e.Î¨;
-		var phi = e.Î¦;
+		var LPEJ = e.Π;
+		var psi = e.Ψ;
+		var phi = e.Φ;
 
 		  
 		  
 		//Calculate periodic terms for lone.Gitude
-		var Î£1 =
+		var Σ1 =
 			0.84287*KMG.Math.dsin(e.l4 - e.p4)
 			+ 0.03431*KMG.Math.dsin(e.p4 - e.p3)
 			- 0.03305*KMG.Math.dsin(2*(psi - LPEJ))
@@ -5120,9 +5120,9 @@ KMG.CustomCallistoOrbit = function() {
 			- 1.9e-4*KMG.Math.dsin(2*e.l4 - e.p3 - e.p4)
 			- 1.8e-4*KMG.Math.dsin(e.l4 - e.p4 + e.G)
 			- 1.6e-4*KMG.Math.dsin(e.l4 + e.p3 - 2*LPEJ - 2*e.G);
-		Î£1 = KMG.Math.clamp(Î£1, 360.0);
-		//Î£1 = dee.GToRad(Î£1);
-		var L = e.l4 + Î£1;
+		Σ1 = KMG.Math.clamp(Σ1, 360.0);
+		//Σ1 = dee.GToRad(Σ1);
+		var L = e.l4 + Σ1;
 
 		//Calculate periodic terms for the tane.Gent of the latitude
 		var B =
@@ -5539,8 +5539,8 @@ KMG.CustomOrbits.eris = function() {
 
 
 /*
-	Î±0 => Right Ascension
-	Î´0 => Declination
+	α0 => Right Ascension
+	δ0 => Declination
 	W => Meridian
 */
 
@@ -5816,23 +5816,23 @@ KMG.IAUJupiterRotation = function() {
 		
 		var e = calculateElements(t);
 		
-		var Î±0 = 268.056595 - 0.006499 * t 
+		var α0 = 268.056595 - 0.006499 * t 
 				+ 0.000117 * KMG.Math.dsin(e.Ja) 
 				+ 0.000938 * KMG.Math.dsin(e.Jb)
 				+ 0.001432 * KMG.Math.dsin(e.Jc)
 				+ 0.000030 * KMG.Math.dsin(e.Jd) 
 				+ 0.002150 * KMG.Math.dsin(e.Je);
 				
-		var Î´0 = 64.495303 + 0.002413 * t 
+		var δ0 = 64.495303 + 0.002413 * t 
 				+ 0.000050 * KMG.Math.dcos(e.Ja)
 				+ 0.000404 * KMG.Math.dcos(e.Jb)
 				+ 0.000617 * KMG.Math.dcos(e.Jc)
 				- 0.000013 * KMG.Math.dcos(e.Jd) 
 				+ 0.000926 * KMG.Math.dcos(e.Je);
-		Î´0 = 86.87;
+		δ0 = 86.87;
 		return {
-			ra : Î±0,
-			dec : Î´0
+			ra : α0,
+			dec : δ0
 		};
 	};
 	

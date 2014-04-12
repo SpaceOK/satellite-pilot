@@ -1,20 +1,30 @@
+<!DOCTYPE html>
 <html>
 	<head>
-		<title>My first Three.js app</title>
+		<title>Orbits Viewer</title>
 		<style>canvas { width: 80%; height: 100% }</style>
+		<meta charset="utf-8">
+		<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+
 	</head>
 	<body>
+		<canvas id="container"></canvas>
+		<script src="js/jquery-1.11.0.min.js"></script>
 		<script src="js/three.min.js"></script>
+		<script src="js/moment.js"></script>
+		<script src="js/postprocessing.js"></script>
+		<script src="js/shaders.js"></script>
 		<script src="js/planetmaker.js"></script>
+		<script src="js/Orbiter.js"></script>
 		<script>
-			// var canvas = document.getElementById("theCanvas");
-			// var renderer = new THREE.WebGLRenderer({ canvas: canvas });
+			var canvasDoc = document.getElementById("container");
+			var renderer = new THREE.WebGLRenderer({ canvas: canvasDoc, width: '80%' });
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-			var renderer = new THREE.WebGLRenderer();
+			// var renderer = new THREE.WebGLRenderer();
 			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.body.appendChild( renderer.domElement );
+			// document.body.appendChild( renderer.domElement );
 
 			var geometry = new THREE.CubeGeometry(1,1,1);
 			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
@@ -38,8 +48,10 @@
 			function zoomOut() {
 				camera.position.z += 1;
 			}
+
+			window.Orbiter = new Orbiter();
+			window.Orbiter.loadOrbits();
 		</script>
-		<canvas id="theCanvas"></canvas>
 		<div style="float: right">
 			<button onclick="zoomIn()">Zoom in</button>
 			<button onclick="zoomOut()">Zoom Out</button>
