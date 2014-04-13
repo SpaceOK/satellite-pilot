@@ -269,7 +269,7 @@ function onDocumentMouseDown( event ) {
 }
 
 function setCameraToSatellite(satellite) {
-	console.log('setCameraToSatellite');
+	// console.log('setCameraToSatellite');
 	if(!pilotSatellite) {
 		console.log('setCameraToSatellite - !pilotSatellite');
 		return; //We dont need to set camera if we dont have toggle enabled
@@ -796,6 +796,15 @@ $(function() {
 				newlySelectedSatellite = true;
 				setCameraToSatellite(sat);
 			});
+
+			//the first run through, we need to have the first item in the list get selected.
+			//NOTE: Beidou needs to exist, it may not. 
+			try {
+				var sat = getSatelliteByName('BEIDOU G1');
+				selectedSatellite = sat;
+				newlySelectedSatellite = true;
+				setCameraToSatellite(sat);
+			} catch (ex) {}
 
 			
 			$( "#loading-screen" ).css("display", "none");
