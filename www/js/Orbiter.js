@@ -24,6 +24,10 @@ var modelOptions = {
 };
 
 var satelliteArray = [];
+var pilotSatellite = false;
+var camera = null;
+var cameraNeedsReset = false;
+var newlySelectedSatellite = false;
 
 var categories = [
 	{ category : "STATIONS", description : "Space Stations", enabled : true },
@@ -221,8 +225,6 @@ function onDocumentMouseDown( event ) {
 
 	console.log('onDocumentMouseDown');
 
-	// console.log('onFrameHandler firing');
-
 	// tickController.speed = 1 + (1000 * modelOptions.tickDelayGui);
 
 	// $("#date-container").text(moment(tickController.tickDate).format("LLL"));
@@ -267,14 +269,31 @@ function onDocumentMouseDown( event ) {
 }
 
 function setCameraToSatellite(satellite) {
+	console.log('setCameraToSatellite');
+	if(!pilotSatellite) {
+		console.log('setCameraToSatellite - !pilotSatellite');
+		return; //We dont need to set camera if we dont have toggle enabled
+	}
 	var context = engine.context;
 	selectedSatellite = satellite;
 	context.camera.position.x = satellite.dot.position.x;
 	context.camera.position.y = satellite.dot.position.y;
 	context.camera.position.z = satellite.dot.position.z;
 
-	var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
-	context.camera.lookAt(vectorPointingAtEarth);
+	if(newlySelectedSatellite) {
+		var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
+		context.camera.lookAt(vectorPointingAtEarth);
+		newlySelectedSatellite = false;
+	}
+}
+
+function resetCamera() {
+	console.log('resetCamera');
+	var camera = engine.context.camera;
+	camera.position.x = 0;
+	camera.position.y = 0;
+	camera.position.z = 700;
+	camera.lookAt(new THREE.Vector3(0, 0 , 100));
 }
 
 
@@ -429,6 +448,7 @@ $(function() {
 	
 	engine = new KMG.Planet(document.getElementById( 'container' ), config, sceneCallbacks);
 	var context = engine.context;
+	camera = context.camera;
 		
 	
 	earthOrbit = new KMG.EllipticalOrbit(KMG.OrbitDefinitions.earth);
@@ -473,7 +493,9 @@ $(function() {
 
 			$("#date-container").text(moment(tickController.tickDate).format("LLL"));
 			
-			var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+			// var vector = new THREE.Vector3( mouse.x, mouse.y, 1 );
+			//Uncomment this code to have mouse overs to show names of satellites. 
+			//Personally, its laggy, so I've commented out.
 			// for(var key in satelliteMap) {
 			// 	var satellite = satelliteMap[key];
 				
@@ -496,22 +518,12 @@ $(function() {
 			// 	}
 				
 			// }
-			if(selectedSatellite) {
-				var satellite = selectedSatellite;
-				context.camera.position.x = satellite.dot.position.x;
-				context.camera.position.y = satellite.dot.position.y;
-				context.camera.position.z = satellite.dot.position.z;
-
-				var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
-				// context.camera.lookAt(vectorPointingAtEarth);
-
-				// var angleFromZ = orbitAngleToZAxis(selectedSatellite.dot.position);
-				// console.log(angleFromZ);
-				// var normalZVector = new THREE.Vector3(0, 0, 1);
-				// normalZVector.applyAxisAngle(normalZVector, angleFromZ);
-				// context.camera.lookAt(normalZVector);
-				// var directAngle = 
-				// context.camera.lookAt(directAngle);
+			if(pilotSatellite) {
+				setCameraToSatellite(selectedSatellite);
+				// newlySelectedSatellite = false;
+			} else if(cameraNeedsReset) {
+				resetCamera();
+				cameraNeedsReset = false;
 			}
 			
 			
@@ -722,21 +734,24 @@ $(function() {
 			}
 
 			var satelliteGui = gui.left.createBlock("Satellites");
-			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
-				alert(newValue);
-			});
 
-			// console.log('satellitegui - array: ' + JSON.stringify(satelliteArray));
 			satelliteGui.addSelect('satelliteToPilot', 'Satellite to Pilot', satelliteArray).addChangeListener(function(property, title, oldValue, newValue){
 				// alert(newValue);
 				//Go through satellite map, find sat, set camera on it
 				for(var key in satelliteMap) {
 					var satellite = satelliteMap[key];
 					if(satellite.name == newValue) {
-						setCameraToSatellite(satellite);
+						selectedSatellite = satellite;
+						newlySelectedSatellite = true;
+						setCameraToSatellite(selectedSatellite);
 						break;
 					}
 				}
+			});
+
+			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
+				pilotSatellite = newValue;
+				cameraNeedsReset = true;
 			});
 
 			
