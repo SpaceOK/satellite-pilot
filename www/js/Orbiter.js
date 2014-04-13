@@ -752,6 +752,7 @@ $(function() {
 			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
 				pilotSatellite = newValue;
 				cameraNeedsReset = true;
+				newlySelectedSatellite = true;
 			});
 
 			
