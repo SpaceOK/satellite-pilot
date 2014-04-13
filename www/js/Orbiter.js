@@ -1,3 +1,4 @@
+var gui = null;
 var tickController = null;
 var engine = null;
 var timer = null;
@@ -21,6 +22,8 @@ var modelOptions = {
 	
 	timeWarp : 25000
 };
+
+var satelliteArray = [];
 
 var categories = [
 	{ category : "STATIONS", description : "Space Stations", enabled : true },
@@ -240,13 +243,13 @@ function onDocumentMouseDown( event ) {
 			}
 
 			satellite.nameSprite.position = satellite.dot.position;
-			selectedSatellite = satellite;
-			context.camera.position.x = satellite.dot.position.x;
-			context.camera.position.y = satellite.dot.position.y;
-			context.camera.position.z = satellite.dot.position.z;
+			// selectedSatellite = satellite;
+			// context.camera.position.x = satellite.dot.position.x;
+			// context.camera.position.y = satellite.dot.position.y;
+			// context.camera.position.z = satellite.dot.position.z;
 
-			var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
-			context.camera.lookAt(vectorPointingAtEarth);
+			// var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
+			// context.camera.lookAt(vectorPointingAtEarth);
 
 			// console.log('nameSprite is attaching');
 		
@@ -261,6 +264,17 @@ function onDocumentMouseDown( event ) {
 	
 	return false;	
 	
+}
+
+function setCameraToSatellite(satellite) {
+	var context = engine.context;
+	selectedSatellite = satellite;
+	context.camera.position.x = satellite.dot.position.x;
+	context.camera.position.y = satellite.dot.position.y;
+	context.camera.position.z = satellite.dot.position.z;
+
+	var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
+	context.camera.lookAt(vectorPointingAtEarth);
 }
 
 
@@ -490,6 +504,14 @@ $(function() {
 
 				var vectorPointingAtEarth = new THREE.Vector3(-1*satellite.dot.position.x, -1*satellite.dot.position.y, -1*satellite.dot.position.z);
 				// context.camera.lookAt(vectorPointingAtEarth);
+
+				// var angleFromZ = orbitAngleToZAxis(selectedSatellite.dot.position);
+				// console.log(angleFromZ);
+				// var normalZVector = new THREE.Vector3(0, 0, 1);
+				// normalZVector.applyAxisAngle(normalZVector, angleFromZ);
+				// context.camera.lookAt(normalZVector);
+				// var directAngle = 
+				// context.camera.lookAt(directAngle);
 			}
 			
 			
@@ -596,9 +618,7 @@ $(function() {
 	if (warp) {
 		modelOptions.tickDelayGui = parseFloat(warp);
 	}
-	modelGui.addRange('tickDelayGui', 'Animation Speed', 0, 1, .01);
-	
-	
+	modelGui.addRange('tickDelayGui', 'Animation Speed', 0, 1, .01);	
 	
 	var categoryGui = gui.right.createBlock("Categories", categoryOptions);
 	if (filterTo) { 
@@ -682,6 +702,8 @@ $(function() {
 							orbiter : null
 						};
 						satelliteMap[entry.satelliteNumber] = satellite;
+						//Adding to array to cross associate for the drop down of satellites
+						satelliteArray.push(entry.name);
 					}
 				}
 				
@@ -698,6 +720,25 @@ $(function() {
 				var groupName = group.name;
 				setCategoryVisibility(groupName, false);
 			}
+
+			var satelliteGui = gui.left.createBlock("Satellites");
+			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
+				alert(newValue);
+			});
+
+			// console.log('satellitegui - array: ' + JSON.stringify(satelliteArray));
+			satelliteGui.addSelect('satelliteToPilot', 'Satellite to Pilot', satelliteArray).addChangeListener(function(property, title, oldValue, newValue){
+				// alert(newValue);
+				//Go through satellite map, find sat, set camera on it
+				for(var key in satelliteMap) {
+					var satellite = satelliteMap[key];
+					if(satellite.name == newValue) {
+						setCameraToSatellite(satellite);
+						break;
+					}
+				}
+			});
+
 			
 			$( "#loading-screen" ).css("display", "none");
 		}
