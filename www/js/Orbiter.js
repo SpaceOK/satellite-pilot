@@ -268,6 +268,13 @@ function onDocumentMouseDown( event ) {
 	
 }
 
+function modifySatelliteOrbit(satellite) {
+	var context = engine.context;
+	//satellite.orbit.inclination = inclination;
+	//console.log('setting new orbit');
+	createOrbitor(context, satellite, tickController);
+}
+
 function setCameraToSatellite(satellite) {
 	console.log('setCameraToSatellite');
 	if(!pilotSatellite) {
@@ -546,7 +553,20 @@ $(function() {
 			// 	}
 				
 			// }
+
+			
+
 			if(pilotSatellite) {
+				//var newInclination = modelOptions.modifyInclination;
+
+				//if (selectedSatellite.orbit.inclination !== newInclination) {
+				//	console.log(newInclination);
+				//	selectedSatellite.orbit.inclination = newInclination;
+				//	modifySatelliteOrbit(selectedSatellite);
+				//}
+
+				modifySatelliteOrbit(selectedSatellite);
+
 				setCameraToSatellite(selectedSatellite);
 				// newlySelectedSatellite = false;
 			} else if(cameraNeedsReset) {
@@ -775,6 +795,8 @@ $(function() {
 				setCategoryVisibility(groupName, false);
 			}
 
+
+
 			var satelliteGui = gui.left.createBlock("Satellites");
 
 			satelliteGui.addSelect('satelliteToPilot', 'Satellite to Pilot', satelliteArray).addChangeListener(function(property, title, oldValue, newValue){
@@ -782,6 +804,10 @@ $(function() {
 				selectedSatellite = satellite;
 				newlySelectedSatellite = true;
 				setCameraToSatellite(satellite);
+
+				modelOptions.modifyInclination = satellite.orbit.inclination;
+				var satelliteOrbit = gui.left.createBlock("Satellite Orbit", modelOptions);
+				satelliteOrbit.addRange('modifyInclination', 'Inclination', 0, 100, 1);
 			});
 
 			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
