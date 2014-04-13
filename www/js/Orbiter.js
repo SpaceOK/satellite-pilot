@@ -34,7 +34,7 @@ var categories = [
 	{ category : "SCIENCE", description : "Science", enabled : false },
 	{ category : "VISUAL", description : "Potentially Visible", enabled : true },
 	{ category : "AMATEUR", description : "Amateur Radio", enabled : false },
-	{ category : "GEO", description : "Geostationary", enabled : false },
+	{ category : "GEO", description : "Geostationary", enabled : true },
 	{ category : "GPS", description : "GPS", enabled : false },
 	{ category : "TLE-NEW", description : "Recent Launches", enabled : false },
 	{ category : "BEIDOU", description : "Beidou", enabled : false },
@@ -296,6 +296,31 @@ function resetCamera() {
 	camera.lookAt(new THREE.Vector3(0, 0 , 100));
 }
 
+function getSatelliteByName(satName) {
+	var satToReturn = null;
+	for(var key in satelliteMap) {
+		var satellite = satelliteMap[key];
+		if(satellite.name == satName) {
+			satToReturn = satellite;
+			break;
+		}
+	}
+	return satToReturn;
+}
+
+function createMoon(planet, moonConfig)
+{
+	planet.addMoon(moonConfig);
+
+	// if (createMoonGui) {
+	// 	createMoonGui(moonConfig);
+	// }
+		
+	planet.context.configChanged = true;
+};
+	
+
+
 
 $(function() {
 
@@ -455,6 +480,12 @@ $(function() {
 	var earthConfig = KMG.Util.extend({radius:200, fog:false, scale:1.0, texture:"earth", material:KMG.MaterialPhong}, KMG.DefaultTexturedSphereOptions);
 	earth = new KMG.TexturedSphereObject(context, earthConfig);
 	addToPrimaryScene(earth);
+
+	var moonConfig = KMG.Util.extend({}, KMG.DefaultMoonConfig);
+	createMoon(engine, moonConfig);
+
+
+
 	
 	//axisLines = new KMG.LibrationAxisLines(context, {});
 	//addToPrimaryScene(axisLines);
@@ -736,23 +767,23 @@ $(function() {
 			var satelliteGui = gui.left.createBlock("Satellites");
 
 			satelliteGui.addSelect('satelliteToPilot', 'Satellite to Pilot', satelliteArray).addChangeListener(function(property, title, oldValue, newValue){
-				// alert(newValue);
-				//Go through satellite map, find sat, set camera on it
-				for(var key in satelliteMap) {
-					var satellite = satelliteMap[key];
-					if(satellite.name == newValue) {
-						selectedSatellite = satellite;
-						newlySelectedSatellite = true;
-						setCameraToSatellite(selectedSatellite);
-						break;
-					}
-				}
+				var satellite = getSatelliteByName(newValue);
+				selectedSatellite = satellite;
+				newlySelectedSatellite = true;
+				setCameraToSatellite(satellite);
 			});
 
 			satelliteGui.addToggle('pilotSatellite', 'Pilot Satellite').addChangeListener(function(property, title, oldValue, newValue) {
 				pilotSatellite = newValue;
 				cameraNeedsReset = true;
 				newlySelectedSatellite = true;
+			});
+
+			satelliteGui.addAction('Mount Geostationary Satellite', function() {
+				var sat = getSatelliteByName('BEIDOU G1');
+				selectedSatellite = sat;
+				newlySelectedSatellite = true;
+				setCameraToSatellite(sat);
 			});
 
 			
