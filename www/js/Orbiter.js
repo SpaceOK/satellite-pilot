@@ -716,9 +716,6 @@ $(function() {
 		dataType: "script",
 		success: function(data, textStatus, jqxhr) {
 			
-
-			
-			
 			setLoadingStatus("Rendering satellites...");
 			for (var i = 0; i < KMG.ORBITS.length; i++) {
 			// for (var i = 0; i < 10; i++) {
