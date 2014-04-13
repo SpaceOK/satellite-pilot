@@ -657,7 +657,7 @@ $(function() {
 	modelGui.addToggle('pathsVisible', 'Show Orbits:').addChangeListener(function(property, title, oldValue, newValue) {
 		setPathVisibility(newValue);
 	});
-	modelOptions.tickDelayGui = .25;
+	modelOptions.tickDelayGui = .05;
 	var warp = AppEnv.getUrlVar("warp");
 	if (warp) {
 		modelOptions.tickDelayGui = parseFloat(warp);
