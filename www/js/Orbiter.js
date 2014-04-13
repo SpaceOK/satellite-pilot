@@ -276,7 +276,7 @@ function modifySatelliteOrbit(satellite) {
 }
 
 function setCameraToSatellite(satellite) {
-	console.log('setCameraToSatellite');
+	// console.log('setCameraToSatellite');
 	if(!pilotSatellite) {
 		console.log('setCameraToSatellite - !pilotSatellite');
 		return; //We dont need to set camera if we dont have toggle enabled
@@ -736,9 +736,6 @@ $(function() {
 		dataType: "script",
 		success: function(data, textStatus, jqxhr) {
 			
-
-			
-			
 			setLoadingStatus("Rendering satellites...");
 			for (var i = 0; i < KMG.ORBITS.length; i++) {
 			// for (var i = 0; i < 10; i++) {
@@ -822,6 +819,15 @@ $(function() {
 				newlySelectedSatellite = true;
 				setCameraToSatellite(sat);
 			});
+
+			//the first run through, we need to have the first item in the list get selected.
+			//NOTE: Beidou needs to exist, it may not. 
+			try {
+				var sat = getSatelliteByName('BEIDOU G1');
+				selectedSatellite = sat;
+				newlySelectedSatellite = true;
+				setCameraToSatellite(sat);
+			} catch (ex) {}
 
 			
 			$( "#loading-screen" ).css("display", "none");
