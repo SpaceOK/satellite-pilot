@@ -442,9 +442,6 @@ $(function() {
 	//config.backgroundImageType = "sphere";
 	config.textureResolution = "1024x512";
 	config.noPlanet = true;
-	//config.noStars = true;
-	config.displayLocalStar = false;
-	config.lensFlareEnabled = false;
 	config.enableFps = false;
 	config.sunlightDirection = 180;
 	config.starQuantity = 9.5;
@@ -609,7 +606,11 @@ $(function() {
 	};
 	engine.applySceneScriptInstance(sceneScript);
 	
-	
+	var starFlareNames = [];
+	for (var i = 0; i < KMG.starFlares.length; i++) {
+		starFlareNames[i] = KMG.starFlares[i].name;
+	}
+
 	
 	
 	var guiChangeListener = function() {
@@ -682,6 +683,16 @@ $(function() {
 		categoryOptions[category.category] = category.enabled;
 		var c = new categoryToggle(categoryGui, category);
 	}
+
+	var localStarGui = gui.right.createBlock("Local Star");
+		localStarGui.setExpandedState(KMG.Closed);
+		localStarGui.addToggle('displayLocalStar', 'Display Local Star:');
+		localStarGui.addRange('localStarDistance', 'Size:', 0.0, 10.0, 0.01);
+		localStarGui.addSelect('localStarTexture', 'Texture:', starFlareNames);
+		// localStarGui.addColor('localStarColor', 'Color:');
+		localStarGui.addToggle('starColorAffectsPlanetLighting', 'Planet Lighting:');
+		localStarGui.addToggle('lensFlareEnabled', 'Lens Flare:');
+
 
 	
 	//engine.context.controls.rotate(0, -KMG.RAD_90);
